@@ -583,7 +583,7 @@
   <h2 data-tr="Ücretsiz görüşme ayarlayalım." data-en="Let's schedule a free call.">Ücretsiz görüşme ayarlayalım.</h2>
   <p class="booking-sub" data-tr="30 dakika. Taahhüt yok. Sadece neler yapılabileceğini görmek için." data-en="30 minutes. No commitment. Just to see what's possible.">30 dakika. Taahhüt yok. Sadece neler yapılabileceğini görmek için.</p>
 
-  <form class="contact-form" id="contactForm" action="https://formspree.io/f/mzdlvgow" method="POST" onsubmit="handleSubmit(event)">
+  <form class="contact-form" id="contactForm" action="https://formspree.io/f/mzdlvgow" method="POST">
     <div class="form-row">
       <div class="form-field">
         <label data-tr="Ad Soyad" data-en="Full Name">Ad Soyad</label>
@@ -637,15 +637,14 @@
   function setLang(lang) {
     currentLang = lang;
     document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector('.lang-btn[onclick="setLang(\'' + lang + '\')"]').classList.add('active');
+    document.querySelector('.lang-btn[onclick="setLang('' + lang + '')"]').classList.add('active');
     document.documentElement.lang = lang;
 
     document.querySelectorAll('[data-tr]').forEach(el => {
       const text = el.getAttribute('data-' + lang);
       if (!text) return;
-      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'BUTTON') {
-        if (el.tagName === 'BUTTON') el.textContent = text;
-      } else if (text.includes('<br>') || text.includes('<em>')) {
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') return;
+      if (text.includes('<br>') || text.includes('<em>')) {
         el.innerHTML = text;
       } else {
         el.textContent = text;
@@ -661,14 +660,6 @@
     document.querySelector('[name="email"]').placeholder = ph[lang].email;
     document.querySelector('[name="phone"]').placeholder = ph[lang].phone;
     document.querySelector('[name="message"]').placeholder = ph[lang].message;
-  }
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    document.getElementById('contactForm').style.display = 'none';
-    const msg = document.getElementById('successMsg');
-    msg.style.display = 'block';
-    msg.textContent = msg.getAttribute('data-' + currentLang);
   }
 
   // Scroll reveal
