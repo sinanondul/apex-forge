@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="color-scheme" content="light" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apex Forge — İşletmeler İçin Yapay Zeka Çözümleri</title>
+  <meta name="description" content="Apex Forge — KOBİ'lere özel yapay zeka çözümleri ve IT danışmanlığı." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --zinc-950: #09090B;
+      --zinc-900: #18181B;
+      --zinc-700: #3F3F46;
+      --zinc-400: #A1A1AA;
+      --zinc-200: #E4E4E7;
+      --zinc-100: #F4F4F5;
+      --zinc-50:  #FAFAFA;
+      --indigo:   #6366F1;
+      --indigo-dark: #4F46E5;
+      --white:    #FFFFFF;
+    }
+
+    html { scroll-behavior: smooth; color-scheme: light only; }
+
+    body {
+      font-family: 'Epilogue', -apple-system, sans-serif;
+      background: #FFFFFF;
+      color: var(--zinc-900);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5vw;
+      height: 60px;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--zinc-200);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .logo-square { width: 9px; height: 9px; background: var(--indigo); flex-shrink: 0; }
+
+    .nav-wordmark { display: flex; flex-direction: column; line-height: 1; margin-left: 2px; }
+    .nav-wordmark .wm-apex { font-size: 15px; font-weight: 800; letter-spacing: -0.5px; color: var(--zinc-900); }
+    .nav-wordmark .wm-forge { font-size: 8px; font-weight: 300; letter-spacing: 2.5px; color: var(--zinc-400); }
+
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+
+    .lang-toggle { display: flex; background: var(--zinc-100); border-radius: 6px; padding: 2px; gap: 2px; }
+    .lang-btn {
+      font-family: 'Epilogue', sans-serif; font-size: 11px; font-weight: 500;
+      letter-spacing: 0.5px; padding: 4px 10px; border: none; border-radius: 4px;
+      cursor: pointer; background: transparent; color: var(--zinc-400); transition: all 0.15s;
+    }
+    .lang-btn.active { background: var(--white); color: var(--zinc-900); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+    .nav-cta {
+      font-family: 'Epilogue', sans-serif; font-size: 13px; font-weight: 500;
+      padding: 8px 16px; background: var(--indigo); color: var(--white);
+      border: none; border-radius: 6px; cursor: pointer; text-decoration: none; transition: background 0.15s;
+    }
+    .nav-cta:hover { background: var(--indigo-dark); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 80px 5vw 56px;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+      min-height: 88vh;
+    }
+
+    .hero-left {}
+
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 400; letter-spacing: 2px;
+      color: var(--zinc-400); text-transform: uppercase; margin-bottom: 24px;
+    }
+    .hero-eyebrow::before {
+      content: ''; display: block; width: 20px; height: 1px; background: var(--indigo);
+    }
+
+    .hero h1 {
+      font-size: clamp(34px, 4.5vw, 58px);
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1.06;
+      color: var(--zinc-900);
+      margin-bottom: 20px;
+    }
+    .hero h1 em { font-style: normal; color: var(--indigo); }
+
+    .hero-sub {
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--zinc-700);
+      max-width: 440px;
+      margin-bottom: 36px;
+      line-height: 1.75;
+    }
+
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    .btn-primary {
+      font-family: 'Epilogue', sans-serif; font-size: 14px; font-weight: 500;
+      padding: 13px 24px; background: var(--indigo); color: var(--white);
+      border: none; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.15s;
+    }
+    .btn-primary:hover { background: var(--indigo-dark); }
+
+    .btn-secondary {
+      font-family: 'Epilogue', sans-serif; font-size: 14px; font-weight: 400;
+      padding: 13px 24px; background: transparent; color: var(--zinc-700);
+      border: 1px solid var(--zinc-200); border-radius: 8px; cursor: pointer;
+      text-decoration: none; transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-secondary:hover { border-color: var(--zinc-400); color: var(--zinc-900); }
+
+    /* ── HERO VISUAL ── */
+    .hero-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-visual svg {
+      width: 100%;
+      max-width: 460px;
+    }
+
+    /* ── SERVICES ── */
+    .services {
+      padding: 56px 5vw 56px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 11px; font-weight: 400; letter-spacing: 2.5px;
+      color: var(--zinc-400); text-transform: uppercase; margin-bottom: 32px;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--zinc-200);
+      border: 1px solid var(--zinc-200);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .service-card { background: var(--white); padding: 32px 28px; }
+
+    .service-num {
+      font-size: 11px; font-weight: 400; letter-spacing: 1.5px;
+      color: var(--indigo); margin-bottom: 16px;
+    }
+
+    .service-card h3 {
+      font-size: 16px; font-weight: 800; letter-spacing: -0.3px;
+      color: var(--zinc-900); margin-bottom: 10px;
+    }
+
+    .service-card p {
+      font-size: 13px; font-weight: 400; color: var(--zinc-700); line-height: 1.7;
+    }
+
+    /* ── HOW ── */
+    .how {
+      margin: 48px 5vw;
+      padding: 56px 5vw;
+      background: var(--zinc-950);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .how .section-label { color: #3F3F46; }
+
+    .how-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 36px;
+    }
+
+    .step-num { font-size: 11px; font-weight: 400; letter-spacing: 2px; color: var(--indigo); margin-bottom: 12px; }
+    .how-step h3 { font-size: 15px; font-weight: 800; color: var(--zinc-50); margin-bottom: 8px; }
+    .how-step p { font-size: 13px; font-weight: 300; color: #52525B; line-height: 1.7; }
+
+    /* ── BOOKING ── */
+    .booking {
+      padding: 56px 5vw;
+      max-width: 640px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .booking h2 {
+      font-size: clamp(26px, 3.5vw, 40px);
+      font-weight: 800; letter-spacing: -1px;
+      color: var(--zinc-900); margin-bottom: 12px;
+    }
+
+    .booking-sub {
+      font-size: 14px; font-weight: 400; color: var(--zinc-700); margin-bottom: 40px;
+    }
+
+    .contact-form { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .form-field { display: flex; flex-direction: column; gap: 5px; }
+
+    .form-field label {
+      font-size: 11px; font-weight: 400; letter-spacing: 0.5px; color: var(--zinc-700);
+    }
+
+    .form-field input,
+    .form-field textarea {
+      font-family: 'Epilogue', sans-serif; font-size: 14px; font-weight: 300;
+      padding: 11px 14px; border: 1px solid var(--zinc-200); border-radius: 8px;
+      background: var(--zinc-50); color: var(--zinc-900); outline: none;
+      transition: border-color 0.15s; width: 100%;
+    }
+
+    .form-field input:focus,
+    .form-field textarea:focus { border-color: var(--indigo); background: var(--white); }
+
+    .form-field textarea { resize: vertical; min-height: 90px; }
+
+    .form-submit {
+      font-family: 'Epilogue', sans-serif; font-size: 14px; font-weight: 500;
+      padding: 13px; background: var(--indigo); color: var(--white);
+      border: none; border-radius: 8px; cursor: pointer; width: 100%;
+      transition: background 0.15s; margin-top: 4px;
+    }
+    .form-submit:hover { background: var(--indigo-dark); }
+
+    .form-note { font-size: 12px; font-weight: 300; color: var(--zinc-400); text-align: center; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--zinc-200);
+      padding: 32px 5vw;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
+
+    .footer-brand { display: flex; align-items: center; gap: 8px; }
+    footer p { font-size: 12px; font-weight: 300; color: var(--zinc-400); }
+
+    /* ── SUCCESS ── */
+    .success-msg {
+      display: none; padding: 20px;
+      background: #ECFDF5; border: 1px solid #6EE7B7;
+      border-radius: 8px; color: #065F46; font-size: 14px; text-align: center;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .hero-left { animation: fadeUp 0.7s ease both; }
+    .hero-visual { animation: fadeIn 1s ease 0.3s both; }
+    .hero-eyebrow { animation: fadeUp 0.6s ease 0.1s both; }
+
+    /* Service card hover */
+    .service-card {
+      transition: box-shadow 0.2s, transform 0.2s;
+      cursor: default;
+    }
+    .service-card:hover {
+      box-shadow: 0 8px 32px rgba(99,102,241,0.08);
+      transform: translateY(-2px);
+      z-index: 1;
+      position: relative;
+    }
+
+    /* How step hover */
+    .how-step {
+      padding: 24px 20px;
+      border-radius: 10px;
+      transition: background 0.2s;
+    }
+    .how-step:hover { background: rgba(255,255,255,0.04); }
+
+    /* Button shine effect */
+    .btn-primary {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transition: left 0.4s;
+    }
+    .btn-primary:hover::after { left: 150%; }
+
+    /* Nav logo hover */
+    .nav-logo { transition: opacity 0.15s; }
+    .nav-logo:hover { opacity: 0.75; }
+
+    /* Form field focus animation */
+    .form-field input,
+    .form-field textarea {
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    .form-field input:focus,
+    .form-field textarea:focus {
+      border-color: var(--indigo);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+    }
+
+    /* Submit button loading state */
+    .form-submit { transition: background 0.15s, transform 0.1s; }
+    .form-submit:active { transform: scale(0.98); }
+
+    /* Scroll reveal (JS handles class) */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; padding-top: 88px; }
+      .hero-visual { display: none; }
+      .services-grid { grid-template-columns: 1fr; }
+      .how-steps { grid-template-columns: 1fr 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .how-steps { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div style="display:flex;align-items:center;gap:4px;">
+      <div class="logo-square"></div>
+      <svg width="28" height="18" viewBox="0 0 28 18" fill="none">
+        <polyline points="2,2 11,9 2,16" stroke="#18181B" stroke-width="3.5" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
+        <polyline points="11,2 20,9 11,16" stroke="#18181B" stroke-width="3.5" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
+      </svg>
+    </div>
+    <div class="nav-wordmark">
+      <span class="wm-apex">APEX</span>
+      <span class="wm-forge">FORGE</span>
+    </div>
+  </a>
+  <div class="nav-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('tr')">TR</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+    <a href="#booking" class="nav-cta" data-tr="Ücretsiz Görüşme" data-en="Free Consultation">Ücretsiz Görüşme</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow" data-tr="İstanbul · Türkiye" data-en="Istanbul · Turkey">İstanbul · Türkiye</div>
+    <h1 data-tr="Manuel işleri<br><em>yapay zekaya</em> bırakın." data-en="Stop doing it manually.<br>Let <em>AI</em> handle it.">
+      Manuel işleri<br><em>yapay zekaya</em> bırakın.
+    </h1>
+    <p class="hero-sub" data-tr="Şirketinizin tekrarlayan süreçlerini analiz eder, size özel yapay zeka araçları geliştiririz. Sadece tavsiye değil — çalışan çözümler." data-en="We analyze your repetitive processes and build custom AI tools. Not just advice — working solutions.">
+      Şirketinizin tekrarlayan süreçlerini analiz eder, size özel yapay zeka araçları geliştiririz. Sadece tavsiye değil — çalışan çözümler.
+    </p>
+    <div class="hero-actions">
+      <a href="#booking" class="btn-primary" data-tr="Ücretsiz Keşif Görüşmesi" data-en="Free Discovery Call">Ücretsiz Keşif Görüşmesi</a>
+      <a href="#services" class="btn-secondary" data-tr="Hizmetlerimiz" data-en="Our Services">Hizmetlerimiz</a>
+    </div>
+  </div>
+
+  <!-- HERO VISUAL -->
+  <div class="hero-visual">
+    <svg viewBox="0 0 480 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Outer glow -->
+      <ellipse cx="240" cy="210" rx="180" ry="160" fill="#6366F1" opacity="0.04"/>
+
+      <!-- Main dashboard card -->
+      <rect x="40" y="30" width="400" height="360" rx="16" fill="#FFFFFF" stroke="#E4E4E7" stroke-width="1"/>
+
+      <!-- Card top bar -->
+      <rect x="40" y="30" width="400" height="48" rx="16" fill="#FAFAFA"/>
+      <rect x="40" y="62" width="400" height="16" fill="#FAFAFA"/>
+      <circle cx="68" cy="54" r="6" fill="#E4E4E7"/>
+      <circle cx="86" cy="54" r="6" fill="#E4E4E7"/>
+      <circle cx="104" cy="54" r="6" fill="#E4E4E7"/>
+      <rect x="130" y="48" width="120" height="12" rx="6" fill="#F4F4F5"/>
+
+      <!-- Status pill top right -->
+      <rect x="368" y="44" width="56" height="20" rx="10" fill="#ECFDF5"/>
+      <circle cx="382" cy="54" r="4" fill="#22C55E"/>
+      <rect x="390" y="50" width="28" height="8" rx="4" fill="#BBF7D0"/>
+
+      <!-- LEFT COLUMN: Process list -->
+      <text x="60" y="108" font-family="'Epilogue',sans-serif" font-size="9" fill="#A1A1AA" letter-spacing="1.5" font-weight="400">SÜREÇLER</text>
+
+      <!-- Process item 1 - active/indigo -->
+      <rect x="56" y="116" width="152" height="44" rx="8" fill="#EEF2FF" stroke="#6366F1" stroke-width="1"/>
+      <rect x="68" y="126" width="8" height="8" rx="2" fill="#6366F1"/>
+      <rect x="82" y="127" width="60" height="7" rx="3" fill="#6366F1" opacity="0.5"/>
+      <rect x="82" y="138" width="40" height="5" rx="2" fill="#C7D2FE"/>
+
+      <!-- Process item 2 -->
+      <rect x="56" y="168" width="152" height="44" rx="8" fill="#FAFAFA" stroke="#E4E4E7" stroke-width="1"/>
+      <rect x="68" y="178" width="8" height="8" rx="2" fill="#D4D4D8"/>
+      <rect x="82" y="179" width="72" height="7" rx="3" fill="#D4D4D8"/>
+      <rect x="82" y="190" width="50" height="5" rx="2" fill="#E4E4E7"/>
+
+      <!-- Process item 3 -->
+      <rect x="56" y="220" width="152" height="44" rx="8" fill="#FAFAFA" stroke="#E4E4E7" stroke-width="1"/>
+      <rect x="68" y="230" width="8" height="8" rx="2" fill="#D4D4D8"/>
+      <rect x="82" y="231" width="55" height="7" rx="3" fill="#D4D4D8"/>
+      <rect x="82" y="242" width="80" height="5" rx="2" fill="#E4E4E7"/>
+
+      <!-- Process item 4 -->
+      <rect x="56" y="272" width="152" height="44" rx="8" fill="#FAFAFA" stroke="#E4E4E7" stroke-width="1"/>
+      <rect x="68" y="282" width="8" height="8" rx="2" fill="#D4D4D8"/>
+      <rect x="82" y="283" width="80" height="7" rx="3" fill="#D4D4D8"/>
+      <rect x="82" y="294" width="36" height="5" rx="2" fill="#E4E4E7"/>
+
+      <!-- CENTER: AI Engine -->
+      <rect x="228" y="148" width="76" height="76" rx="14" fill="#6366F1"/>
+      <!-- Grid dots -->
+      <circle cx="244" cy="172" r="3.5" fill="white" opacity="0.9"/>
+      <circle cx="258" cy="172" r="3.5" fill="white" opacity="0.9"/>
+      <circle cx="272" cy="172" r="3.5" fill="white" opacity="0.9"/>
+      <circle cx="244" cy="186" r="3.5" fill="white" opacity="0.5"/>
+      <circle cx="258" cy="186" r="3.5" fill="white" opacity="0.9"/>
+      <circle cx="272" cy="186" r="3.5" fill="white" opacity="0.5"/>
+      <circle cx="244" cy="200" r="3.5" fill="white" opacity="0.5"/>
+      <circle cx="258" cy="200" r="3.5" fill="white" opacity="0.7"/>
+      <circle cx="272" cy="200" r="3.5" fill="white" opacity="0.9"/>
+      <text x="266" y="240" font-family="'Epilogue',sans-serif" font-size="8" fill="#6366F1" text-anchor="middle" font-weight="800" letter-spacing="0.5">APEX AI</text>
+
+      <!-- Connecting lines left to center (dashed) -->
+      <line x1="208" y1="138" x2="228" y2="168" stroke="#6366F1" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.4"/>
+      <line x1="208" y1="190" x2="228" y2="182" stroke="#6366F1" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.3"/>
+      <line x1="208" y1="242" x2="228" y2="196" stroke="#6366F1" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.3"/>
+      <line x1="208" y1="294" x2="228" y2="210" stroke="#6366F1" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.3"/>
+
+      <!-- RIGHT COLUMN: Output cards -->
+      <text x="324" y="108" font-family="'Epilogue',sans-serif" font-size="9" fill="#A1A1AA" letter-spacing="1.5" font-weight="400">ÇIKTI</text>
+
+      <!-- Output 1 — done -->
+      <rect x="320" y="116" width="104" height="44" rx="8" fill="#FFFFFF" stroke="#6366F1" stroke-width="1"/>
+      <rect x="332" y="127" width="48" height="6" rx="3" fill="#6366F1" opacity="0.25"/>
+      <rect x="332" y="137" width="70" height="5" rx="2" fill="#E4E4E7"/>
+      <rect x="332" y="146" width="52" height="5" rx="2" fill="#E4E4E7"/>
+      <rect x="390" y="120" width="18" height="18" rx="9" fill="#ECFDF5"/>
+      <text x="399" y="132" font-family="sans-serif" font-size="10" fill="#22C55E" text-anchor="middle">✓</text>
+
+      <!-- Output 2 — done -->
+      <rect x="320" y="172" width="104" height="44" rx="8" fill="#FFFFFF" stroke="#6366F1" stroke-width="1"/>
+      <rect x="332" y="183" width="60" height="6" rx="3" fill="#6366F1" opacity="0.25"/>
+      <rect x="332" y="193" width="44" height="5" rx="2" fill="#E4E4E7"/>
+      <rect x="332" y="202" width="60" height="5" rx="2" fill="#E4E4E7"/>
+      <rect x="390" y="176" width="18" height="18" rx="9" fill="#ECFDF5"/>
+      <text x="399" y="188" font-family="sans-serif" font-size="10" fill="#22C55E" text-anchor="middle">✓</text>
+
+      <!-- Output 3 — in progress -->
+      <rect x="320" y="228" width="104" height="44" rx="8" fill="#FFFFFF" stroke="#E4E4E7" stroke-width="1"/>
+      <rect x="332" y="239" width="36" height="6" rx="3" fill="#D4D4D8"/>
+      <rect x="332" y="249" width="72" height="5" rx="2" fill="#F4F4F5"/>
+      <!-- Progress bar -->
+      <rect x="332" y="258" width="72" height="4" rx="2" fill="#F4F4F5"/>
+      <rect x="332" y="258" width="44" height="4" rx="2" fill="#6366F1" opacity="0.5"/>
+
+      <!-- Connecting lines center to right -->
+      <line x1="304" y1="172" x2="320" y2="142" stroke="#6366F1" stroke-width="1.5" opacity="0.5"/>
+      <line x1="304" y1="184" x2="320" y2="194" stroke="#6366F1" stroke-width="1.5" opacity="0.5"/>
+      <line x1="304" y1="198" x2="320" y2="248" stroke="#6366F1" stroke-width="1.5" opacity="0.3"/>
+
+      <!-- Arrow heads -->
+      <polygon points="320,138 312,148 316,150" fill="#6366F1" opacity="0.5"/>
+      <polygon points="320,190 312,192 314,200" fill="#6366F1" opacity="0.5"/>
+
+      <!-- Bottom status bar -->
+      <rect x="56" y="336" width="368" height="36" rx="8" fill="#F4F4F5"/>
+      <circle cx="76" cy="354" r="6" fill="#22C55E"/>
+      <rect x="90" y="350" width="80" height="8" rx="4" fill="#D4D4D8"/>
+      <rect x="300" y="350" width="108" height="8" rx="4" fill="#E4E4E7"/>
+    </svg>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <p class="section-label" data-tr="Hizmetler" data-en="Services">Hizmetler</p>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-num">01</div>
+      <h3 data-tr="Süreç Analizi" data-en="Process Audit">Süreç Analizi</h3>
+      <p data-tr="Hangi süreçlerin otomatize edilebileceğini tespit eder, öncelik sırası ve maliyet-fayda raporu sunarız." data-en="We identify automatable processes and deliver a prioritized cost-benefit report.">Hangi süreçlerin otomatize edilebileceğini tespit eder, öncelik sırası ve maliyet-fayda raporu sunarız.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">02</div>
+      <h3 data-tr="Yapay Zeka Araçları" data-en="Custom AI Tools">Yapay Zeka Araçları</h3>
+      <p data-tr="E-posta taslakları, chatbotlar, raporlama araçları — işinize özel sıfırdan geliştirilen çözümler." data-en="Email drafters, chatbots, reporting tools — custom-built solutions for your business.">E-posta taslakları, chatbotlar, raporlama araçları — işinize özel sıfırdan geliştirilen çözümler.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">03</div>
+      <h3 data-tr="IT Destek & Bakım" data-en="IT Support & Maintenance">IT Destek & Bakım</h3>
+      <p data-tr="Geliştirilen araçların aylık bakımı, teknik destek ve güncellemeleri. Sürekli çalışır durumda kalması bizim işimiz." data-en="Monthly maintenance, support, and updates. Keeping everything running is our job.">Geliştirilen araçların aylık bakımı, teknik destek ve güncellemeleri. Sürekli çalışır durumda kalması bizim işimiz.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<div class="how" id="how">
+  <p class="section-label" data-tr="Nasıl Çalışır" data-en="How It Works">Nasıl Çalışır</p>
+  <div class="how-steps">
+    <div class="how-step">
+      <div class="step-num">01</div>
+      <h3 data-tr="Ücretsiz Görüşme" data-en="Free Call">Ücretsiz Görüşme</h3>
+      <p data-tr="30 dakikalık keşif görüşmesinde süreçlerinizi dinliyor, neler yapılabileceğini değerlendiriyoruz." data-en="In a 30-minute call, we listen to your processes and assess what's possible.">30 dakikalık keşif görüşmesinde süreçlerinizi dinliyor, neler yapılabileceğini değerlendiriyoruz.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">02</div>
+      <h3 data-tr="Analiz & Teklif" data-en="Analysis & Proposal">Analiz & Teklif</h3>
+      <p data-tr="Size özel otomasyon haritası ve net fiyatlı teklif. Sürpriz maliyet yok." data-en="Custom automation roadmap and clear-priced proposal. No surprise costs.">Size özel otomasyon haritası ve net fiyatlı teklif. Sürpriz maliyet yok.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">03</div>
+      <h3 data-tr="Geliştirme & Teslimat" data-en="Build & Deliver">Geliştirme & Teslimat</h3>
+      <p data-tr="Çözümü geliştirip teslim ediyoruz. Eğitim ve kurulum dahil." data-en="We build and deliver the solution. Training and setup included.">Çözümü geliştirip teslim ediyoruz. Eğitim ve kurulum dahil.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">04</div>
+      <h3 data-tr="Destek & Büyüme" data-en="Support & Scale">Destek & Büyüme</h3>
+      <p data-tr="Aylık destek paketiyle yanınızdayız. İşiniz büyüdükçe çözümler de büyür." data-en="Monthly support keeps us by your side. As you grow, the solutions grow.">Aylık destek paketiyle yanınızdayız. İşiniz büyüdükçe çözümler de büyür.</p>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING -->
+<section class="booking" id="booking">
+  <h2 data-tr="Ücretsiz görüşme ayarlayalım." data-en="Let's schedule a free call.">Ücretsiz görüşme ayarlayalım.</h2>
+  <p class="booking-sub" data-tr="30 dakika. Taahhüt yok. Sadece neler yapılabileceğini görmek için." data-en="30 minutes. No commitment. Just to see what's possible.">30 dakika. Taahhüt yok. Sadece neler yapılabileceğini görmek için.</p>
+
+  <form class="contact-form" id="contactForm" action="https://formspree.io/f/mzdlvgow" method="POST" onsubmit="handleSubmit(event)">
+    <div class="form-row">
+      <div class="form-field">
+        <label data-tr="Ad Soyad" data-en="Full Name">Ad Soyad</label>
+        <input type="text" name="name" placeholder="Ahmet Yılmaz" required />
+      </div>
+      <div class="form-field">
+        <label data-tr="Şirket" data-en="Company">Şirket</label>
+        <input type="text" name="company" placeholder="Şirket Adı" />
+      </div>
+    </div>
+    <div class="form-field">
+      <label data-tr="E-posta" data-en="Email">E-posta</label>
+      <input type="email" name="email" placeholder="ahmet@sirket.com" required />
+    </div>
+    <div class="form-field">
+      <label data-tr="Telefon (isteğe bağlı)" data-en="Phone (optional)">Telefon (isteğe bağlı)</label>
+      <input type="tel" name="phone" placeholder="+90 5XX XXX XX XX" />
+    </div>
+    <div class="form-field">
+      <label data-tr="Otomatize etmek istediğiniz süreç?" data-en="What process do you want to automate?">Otomatize etmek istediğiniz süreç?</label>
+      <textarea name="message" placeholder="Kısaca anlatın..."></textarea>
+    </div>
+    <button type="submit" class="form-submit" data-tr="Görüşme Talebi Gönder →" data-en="Send Meeting Request →">Görüşme Talebi Gönder →</button>
+    <p class="form-note" data-tr="En geç 24 saat içinde dönüş yapılır." data-en="We'll get back to you within 24 hours.">En geç 24 saat içinde dönüş yapılır.</p>
+  </form>
+
+  <div class="success-msg" id="successMsg" data-tr="Talebiniz alındı. En kısa sürede size dönüş yapacağız." data-en="Your request has been received. We'll be in touch shortly."></div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <div style="display:flex;align-items:center;gap:4px;">
+      <div class="logo-square"></div>
+      <svg width="24" height="16" viewBox="0 0 24 16" fill="none">
+        <polyline points="1,1 9,8 1,15" stroke="#18181B" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
+        <polyline points="9,1 17,8 9,15" stroke="#18181B" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
+      </svg>
+    </div>
+    <div class="nav-wordmark" style="margin-left:4px;">
+      <span class="wm-apex" style="font-size:13px;">APEX</span>
+      <span class="wm-forge" style="font-size:7px;">FORGE</span>
+    </div>
+  </div>
+  <p data-tr="© 2025 Apex Forge. İstanbul, Türkiye." data-en="© 2025 Apex Forge. Istanbul, Turkey.">© 2025 Apex Forge. İstanbul, Türkiye.</p>
+</footer>
+
+<script>
+  let currentLang = 'tr';
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.lang-btn[onclick="setLang(\'' + lang + '\')"]').classList.add('active');
+    document.documentElement.lang = lang;
+
+    document.querySelectorAll('[data-tr]').forEach(el => {
+      const text = el.getAttribute('data-' + lang);
+      if (!text) return;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'BUTTON') {
+        if (el.tagName === 'BUTTON') el.textContent = text;
+      } else if (text.includes('<br>') || text.includes('<em>')) {
+        el.innerHTML = text;
+      } else {
+        el.textContent = text;
+      }
+    });
+
+    const ph = {
+      tr: { name: 'Ahmet Yılmaz', company: 'Şirket Adı', email: 'ahmet@sirket.com', phone: '+90 5XX XXX XX XX', message: 'Kısaca anlatın...' },
+      en: { name: 'John Smith', company: 'Company Name', email: 'john@company.com', phone: '+1 XXX XXX XXXX', message: 'Briefly describe...' }
+    };
+    document.querySelector('[name="name"]').placeholder = ph[lang].name;
+    document.querySelector('[name="company"]').placeholder = ph[lang].company;
+    document.querySelector('[name="email"]').placeholder = ph[lang].email;
+    document.querySelector('[name="phone"]').placeholder = ph[lang].phone;
+    document.querySelector('[name="message"]').placeholder = ph[lang].message;
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    document.getElementById('contactForm').style.display = 'none';
+    const msg = document.getElementById('successMsg');
+    msg.style.display = 'block';
+    msg.textContent = msg.getAttribute('data-' + currentLang);
+  }
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.services, .how, .booking');
+  reveals.forEach(el => el.classList.add('reveal'));
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
