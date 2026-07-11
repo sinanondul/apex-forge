@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OkulBul — Okul Paneli & Ödeme & Randevu (Önizleme)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #0F2044; --blue: #1A56C4; --sky: #EEF4FF; --accent: #F5A623;
+  --green: #16A34A; --purple: #7C3AED; --red: #DC2626;
+  --gray50: #F9FAFB; --gray100: #F3F4F6; --gray200: #E5E7EB;
+  --gray400: #9CA3AF; --gray600: #4B5563; --gray800: #1F2937;
+  --white: #FFF; --radius: 12px; --shadow: 0 4px 24px rgba(15,32,68,0.10);
+}
+body { font-family: 'Inter', sans-serif; background: var(--gray50); color: var(--gray800); }
+.preview-banner { background: var(--accent); color: var(--navy); text-align: center; padding: 8px; font-size: 13px; font-weight: 700; }
+nav { background: var(--white); border-bottom: 1px solid var(--gray200); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.nav-logo { font-family: 'Merriweather', serif; font-size: 19px; color: var(--navy); }
+.nav-logo span { color: var(--blue); }
+.nav-school { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--gray600); }
+.nav-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #DBEAFE, #EEF4FF); display: flex; align-items: center; justify-content: center; }
+.page-tabs { display: flex; background: var(--navy); padding: 0 24px; overflow-x: auto; }
+.page-tab { padding: 13px 20px; font-size: 14px; color: #A8BFDF; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+.page-tab.active { color: white; border-bottom-color: var(--accent); font-weight: 700; }
+.page { display: none; }
+.page.active { display: block; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 26px 24px 60px; }
+h2.sec { font-family: 'Merriweather', serif; font-size: 20px; color: var(--navy); margin-bottom: 4px; }
+p.sub { font-size: 13px; color: var(--gray400); margin-bottom: 22px; }
+
+/* dashboard */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 26px; }
+.kpi { background: white; border: 1px solid var(--gray200); border-radius: var(--radius); padding: 18px; }
+.kpi-label { font-size: 12px; color: var(--gray400); margin-bottom: 5px; }
+.kpi-val { font-size: 27px; font-weight: 800; color: var(--navy); }
+.kpi-trend { font-size: 12px; font-weight: 600; color: var(--green); margin-top: 3px; }
+.panel-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 18px; }
+.panel-card { background: white; border: 1px solid var(--gray200); border-radius: var(--radius); padding: 20px; }
+.panel-card h3 { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 14px; }
+table.leads { width: 100%; border-collapse: collapse; font-size: 13px; }
+.leads th { text-align: left; font-size: 11px; text-transform: uppercase; color: var(--gray400); padding: 7px 8px; border-bottom: 2px solid var(--gray100); }
+.leads td { padding: 9px 8px; border-bottom: 1px solid var(--gray100); }
+.lead-kind { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+.lk-email { background: var(--sky); color: var(--blue); }
+.lk-phone { background: #FEF3C7; color: #92400E; }
+.lk-appt { background: #DCFCE7; color: var(--green); }
+.lead-new { background: var(--red); color: white; font-size: 10px; padding: 1px 6px; border-radius: 8px; margin-left: 5px; }
+.profile-field { margin-bottom: 13px; }
+.profile-field label { font-size: 11px; font-weight: 700; color: var(--gray400); text-transform: uppercase; display: block; margin-bottom: 4px; }
+.profile-field input, .profile-field textarea, .profile-field select { width: 100%; border: 1.5px solid var(--gray200); border-radius: 8px; padding: 9px 11px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; }
+.tag-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { background: var(--sky); color: var(--blue); font-size: 12px; padding: 4px 11px; border-radius: 20px; font-weight: 500; }
+.tag.add { background: white; border: 1.5px dashed var(--gray200); color: var(--gray400); cursor: pointer; }
+.save-btn { width: 100%; background: var(--blue); color: white; border: none; border-radius: 8px; padding: 11px; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 6px; }
+.verified-box { background: linear-gradient(135deg, #DCFCE7, #F0FDF4); border: 1px solid #86EFAC; border-radius: 10px; padding: 13px 15px; display: flex; gap: 10px; align-items: center; font-size: 13px; color: #166534; margin-bottom: 16px; }
+
+/* payment */
+.pay-flow { max-width: 480px; margin: 0 auto; }
+.pay-step { background: white; border: 1px solid var(--gray200); border-radius: 14px; padding: 24px; margin-bottom: 16px; box-shadow: var(--shadow); }
+.pay-school { display: flex; gap: 12px; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--gray100); margin-bottom: 14px; }
+.pay-school-icon { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, #DBEAFE, #EEF4FF); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.pay-school-name { font-size: 14px; font-weight: 700; color: var(--navy); }
+.pay-school-sub { font-size: 12px; color: var(--gray400); }
+.pay-items { list-style: none; margin-bottom: 14px; }
+.pay-items li { font-size: 13px; color: var(--gray600); padding: 5px 0; }
+.pay-items li::before { content: "🔓 "; }
+.pay-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 800; color: var(--navy); padding-top: 12px; border-top: 2px solid var(--gray100); margin-bottom: 16px; }
+.card-input-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 9px; margin-bottom: 10px; }
+.card-input-row input, .pay-step > input { border: 1.5px solid var(--gray200); border-radius: 8px; padding: 11px; font-size: 13px; width: 100%; font-family: 'Inter', sans-serif; outline: none; margin-bottom: 10px; }
+.pay-btn { width: 100%; background: var(--green); color: white; border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.pay-secure { text-align: center; font-size: 11px; color: var(--gray400); margin-top: 10px; }
+.pay-providers { display: flex; justify-content: center; gap: 12px; margin-top: 8px; font-size: 12px; color: var(--gray400); font-weight: 600; }
+
+/* calendar */
+.cal-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 18px; }
+.cal-month { background: white; border: 1px solid var(--gray200); border-radius: var(--radius); padding: 18px; }
+.cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 14px; font-weight: 700; color: var(--navy); }
+.cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-dow { font-size: 10px; color: var(--gray400); text-align: center; font-weight: 700; padding: 4px 0; }
+.cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; border-radius: 8px; cursor: pointer; }
+.cal-day:hover { background: var(--sky); }
+.cal-day.avail { background: #DCFCE7; color: #166534; font-weight: 700; }
+.cal-day.sel { background: var(--purple); color: white; font-weight: 700; }
+.cal-day.off { color: var(--gray200); cursor: default; }
+.slot-list { display: flex; flex-direction: column; gap: 8px; }
+.slot { display: flex; align-items: center; gap: 12px; background: white; border: 2px solid var(--gray200); border-radius: 10px; padding: 12px 15px; cursor: pointer; }
+.slot:hover { border-color: var(--purple); }
+.slot.sel { border-color: var(--purple); background: #F5F3FF; }
+.slot-time { font-size: 15px; font-weight: 800; color: var(--navy); width: 60px; }
+.slot-who { flex: 1; }
+.slot-name { font-size: 13px; font-weight: 700; color: var(--navy); }
+.slot-role { font-size: 11px; color: var(--gray400); }
+.slot-badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 12px; background: #DCFCE7; color: var(--green); }
+.confirm-btn { background: var(--purple); color: white; border: none; border-radius: 10px; padding: 13px; font-size: 14px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 14px; }
+@media (max-width: 800px) { .panel-grid, .cal-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="preview-banner">🟡 MOCKUP / FAZ 2 ÖNİZLEME — Okul paneli, ödeme ve randevu tasarım demosudur</div>
+
+<nav>
+  <div class="nav-logo">Okul<span>Bul</span> <small style="font-size:10px;color:var(--gray400)">OKUL PANELİ</small></div>
+  <div class="nav-school"><div class="nav-avatar">🏫</div> Doğa Koleji Kadıköy <span style="color:var(--green);font-weight:700">✅</span></div>
+</nav>
+
+<div class="page-tabs">
+  <div class="page-tab active" data-page="panel" onclick="showPage('panel')">📊 Okul Paneli</div>
+  <div class="page-tab" data-page="pay" onclick="showPage('pay')">💳 Veli Ödeme Akışı</div>
+  <div class="page-tab" data-page="cal" onclick="showPage('cal')">📅 Randevu Takvimi</div>
+</div>
+
+<!-- ═══ OKUL PANELİ ═══ -->
+<div id="page-panel" class="page active">
+  <div class="wrap">
+    <h2 class="sec">Hoş geldiniz, Doğa Koleji Kadıköy</h2>
+    <p class="sub">4 Yıllık Profesyonel Paket · Üyelik bitişi: Temmuz 2030 · Lead fee indirimi: %20</p>
+
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Bu ay profil görüntülenme</div><div class="kpi-val">312</div><div class="kpi-trend">↑ %28 geçen aya göre</div></div>
+      <div class="kpi"><div class="kpi-label">Bu ay survey eşleşmesi</div><div class="kpi-val">47</div><div class="kpi-trend">↑ %12</div></div>
+      <div class="kpi"><div class="kpi-label">Bekleyen lead</div><div class="kpi-val" style="color:var(--red)">5</div><div class="kpi-trend" style="color:var(--gray400)">Yanıt bekliyor</div></div>
+      <div class="kpi"><div class="kpi-label">Bu ay lead maliyeti</div><div class="kpi-val">428₺</div><div class="kpi-trend" style="color:var(--gray400)">%20 indirimli tarife</div></div>
+    </div>
+
+    <div class="panel-grid">
+      <div class="panel-card">
+        <h3>📩 Gelen Lead'ler</h3>
+        <table class="leads">
+          <tr><th>Veli</th><th>Tür</th><th>Tarih</th><th>Durum</th></tr>
+          <tr><td>Ayşe K. <span class="lead-new">YENİ</span></td><td><span class="lead-kind lk-appt">Randevu</span></td><td>Bugün 14:20</td><td>⏳ Bekliyor</td></tr>
+          <tr><td>Mehmet D. <span class="lead-new">YENİ</span></td><td><span class="lead-kind lk-phone">Telefon</span></td><td>Bugün 11:05</td><td>⏳ Bekliyor</td></tr>
+          <tr><td>Zeynep A.</td><td><span class="lead-kind lk-email">E-posta</span></td><td>Dün</td><td>✅ Yanıtlandı</td></tr>
+          <tr><td>Can T.</td><td><span class="lead-kind lk-appt">Randevu</span></td><td>Dün</td><td>📅 Randevu verildi</td></tr>
+          <tr><td>Elif S.</td><td><span class="lead-kind lk-email">E-posta</span></td><td>2 gün önce</td><td>✅ Yanıtlandı</td></tr>
+        </table>
+      </div>
+
+      <div class="panel-card">
+        <h3>✏️ Profil Yönetimi <small style="color:var(--gray400);font-weight:400">— velilerin gördüğü premium detaylar</small></h3>
+        <div class="verified-box">✅ Doğrulanmış Okul — bilgileriniz OkulBul ekibince onaylandı</div>
+        <div class="profile-field">
+          <label>Spor Kulüpleri</label>
+          <div class="tag-row"><span class="tag">Yüzme</span><span class="tag">Basketbol</span><span class="tag">Satranç</span><span class="tag">Robotik</span><span class="tag add">+ Ekle</span></div>
+        </div>
+        <div class="profile-field">
+          <label>Dil Politikası</label>
+          <textarea rows="2">Haftada 12 saat İngilizce, native speaker kadrosu, Cambridge YLE hazırlık.</textarea>
+        </div>
+        <div class="profile-field">
+          <label>Kapsayıcılık Politikası</label>
+          <textarea rows="2">Bireysel eğitim planı desteği, rehberlik servisi, kaynaştırma deneyimi.</textarea>
+        </div>
+        <div class="profile-field">
+          <label>Yıllık Ücret Aralığı (₺)</label>
+          <div style="display:flex;gap:8px"><input value="85.000" style="width:50%"><input value="120.000" style="width:50%"></div>
+        </div>
+        <button class="save-btn">Kaydet & Yayınla</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ÖDEME ═══ -->
+<div id="page-pay" class="page">
+  <div class="wrap">
+    <h2 class="sec" style="text-align:center">Premium Detay Kilidi</h2>
+    <p class="sub" style="text-align:center">Velinin gördüğü ödeme akışı — tek seferlik, abonelik yok</p>
+    <div class="pay-flow">
+      <div class="pay-step">
+        <div class="pay-school">
+          <div class="pay-school-icon">🏫</div>
+          <div>
+            <div class="pay-school-name">Doğa Koleji Kadıköy</div>
+            <div class="pay-school-sub">Kadıköy, İstanbul · ✅ Doğrulanmış</div>
+          </div>
+        </div>
+        <ul class="pay-items">
+          <li>Spor kulüpleri & aktivite listesi</li>
+          <li>Dil politikası detayı</li>
+          <li>Kapsayıcılık politikası</li>
+          <li>Ücret aralığı bilgisi</li>
+          <li>Online randevu alma hakkı</li>
+        </ul>
+        <div class="pay-total"><span>Toplam</span><span>19,00 ₺</span></div>
+        <div class="card-input-row" style="grid-template-columns:1fr">
+          <input placeholder="Kart üzerindeki isim">
+        </div>
+        <div class="card-input-row" style="grid-template-columns:1fr">
+          <input placeholder="Kart numarası" value="**** **** **** 4242">
+        </div>
+        <div class="card-input-row">
+          <input placeholder="AA/YY"><input placeholder="CVV"><input placeholder="Posta kodu">
+        </div>
+        <button class="pay-btn" onclick="alert('Önizleme — Faz 2\'de iyzico/PayTR entegrasyonu ile canlıya alınacak')">🔓 19 ₺ Öde & Kilidi Aç</button>
+        <div class="pay-secure">🔒 256-bit SSL · 3D Secure</div>
+        <div class="pay-providers">iyzico · PayTR · masterpass</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ RANDEVU ═══ -->
+<div id="page-cal" class="page">
+  <div class="wrap">
+    <h2 class="sec">Okul Ziyareti Randevusu</h2>
+    <p class="sub">Doğa Koleji Kadıköy — okulun tanımladığı müsaitliklere göre veli randevu seçer</p>
+    <div class="cal-grid">
+      <div class="cal-month">
+        <div class="cal-head"><span>‹</span> Temmuz 2026 <span>›</span></div>
+        <div class="cal-days">
+          <div class="cal-dow">Pt</div><div class="cal-dow">Sa</div><div class="cal-dow">Ça</div><div class="cal-dow">Pe</div><div class="cal-dow">Cu</div><div class="cal-dow">Ct</div><div class="cal-dow">Pz</div>
+          <div class="cal-day off">29</div><div class="cal-day off">30</div><div class="cal-day">1</div><div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day off">4</div><div class="cal-day off">5</div>
+          <div class="cal-day">6</div><div class="cal-day">7</div><div class="cal-day">8</div><div class="cal-day">9</div><div class="cal-day">10</div><div class="cal-day off">11</div><div class="cal-day off">12</div>
+          <div class="cal-day avail">13</div><div class="cal-day sel">14</div><div class="cal-day avail">15</div><div class="cal-day">16</div><div class="cal-day avail">17</div><div class="cal-day off">18</div><div class="cal-day off">19</div>
+          <div class="cal-day avail">20</div><div class="cal-day">21</div><div class="cal-day avail">22</div><div class="cal-day avail">23</div><div class="cal-day">24</div><div class="cal-day off">25</div><div class="cal-day off">26</div>
+          <div class="cal-day">27</div><div class="cal-day avail">28</div><div class="cal-day">29</div><div class="cal-day">30</div><div class="cal-day">31</div><div class="cal-day off">1</div><div class="cal-day off">2</div>
+        </div>
+        <p style="font-size:11px;color:var(--gray400);margin-top:10px">🟢 Müsait gün · 🟣 Seçili</p>
+      </div>
+      <div>
+        <div class="slot-list">
+          <div class="slot sel">
+            <div class="slot-time">10:00</div>
+            <div class="slot-who"><div class="slot-name">Ayşe Yılmaz</div><div class="slot-role">Rehberlik & Kayıt Sorumlusu</div></div>
+            <div class="slot-badge">Müsait</div>
+          </div>
+          <div class="slot">
+            <div class="slot-time">11:30</div>
+            <div class="slot-who"><div class="slot-name">Ayşe Yılmaz</div><div class="slot-role">Rehberlik & Kayıt Sorumlusu</div></div>
+            <div class="slot-badge">Müsait</div>
+          </div>
+          <div class="slot">
+            <div class="slot-time">14:00</div>
+            <div class="slot-who"><div class="slot-name">Murat Kaya</div><div class="slot-role">Okul Müdürü</div></div>
+            <div class="slot-badge">Müsait</div>
+          </div>
+          <div class="slot">
+            <div class="slot-time">15:30</div>
+            <div class="slot-who"><div class="slot-name">Kampüs Turu</div><div class="slot-role">Grup gezisi (maks 6 aile)</div></div>
+            <div class="slot-badge">3 yer kaldı</div>
+          </div>
+        </div>
+        <button class="confirm-btn" onclick="alert('Önizleme — Faz 2\'de canlıya alınacak. Randevu okulun paneline lead olarak düşer (65₺ tarife).')">📅 14 Temmuz 10:00 — Randevuyu Onayla</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelector(`.page-tab[data-page="${id}"]`).classList.add('active');
+}
+document.querySelectorAll('.cal-day:not(.off)').forEach(d => d.addEventListener('click', () => {
+  document.querySelectorAll('.cal-day').forEach(x => x.classList.remove('sel'));
+  d.classList.add('sel');
+}));
+document.querySelectorAll('.slot').forEach(s => s.addEventListener('click', () => {
+  document.querySelectorAll('.slot').forEach(x => x.classList.remove('sel'));
+  s.classList.add('sel');
+}));
+</script>
+</body>
+</html>

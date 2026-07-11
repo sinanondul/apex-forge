@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OkulBul — Türkiye'nin Okul Arama Platformu</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #0F2044; --blue: #1A56C4; --sky: #EEF4FF;
+  --accent: #F5A623; --green: #16A34A; --purple: #7C3AED;
+  --gray50: #F9FAFB; --gray100: #F3F4F6; --gray200: #E5E7EB;
+  --gray400: #9CA3AF; --gray600: #4B5563; --gray800: #1F2937;
+  --white: #FFFFFF; --radius: 12px;
+  --shadow: 0 4px 24px rgba(15,32,68,0.10);
+}
+body { font-family: 'Inter', sans-serif; background: var(--gray50); color: var(--gray800); }
+
+nav {
+  background: var(--white); border-bottom: 1px solid var(--gray200);
+  position: sticky; top: 0; z-index: 100;
+  padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 60px;
+}
+.nav-logo { font-family: 'Merriweather', serif; font-size: 20px; color: var(--navy); }
+.nav-logo span { color: var(--blue); }
+.nav-links { display: flex; gap: 22px; list-style: none; }
+.nav-links a { text-decoration: none; font-size: 14px; font-weight: 500; color: var(--gray600); cursor: pointer; }
+.nav-links a:hover { color: var(--blue); }
+.nav-right { display: flex; gap: 10px; }
+.nav-login { background: none; border: 1.5px solid var(--gray200); color: var(--gray600); padding: 7px 16px; border-radius: 8px; font-size: 14px; cursor: pointer; }
+.nav-cta { background: var(--blue); color: var(--white); border: none; padding: 8px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+.page-tabs { display: flex; background: var(--navy); padding: 0 24px; overflow-x: auto; }
+.page-tab { padding: 14px 22px; font-size: 14px; font-weight: 500; color: #A8BFDF; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+.page-tab:hover { color: var(--white); }
+.page-tab.active { color: var(--white); border-bottom-color: var(--accent); font-weight: 700; }
+
+.page { display: none; }
+.page.active { display: block; }
+
+/* HERO */
+.hero { background: linear-gradient(135deg, var(--navy) 0%, #1A3A7A 100%); padding: 56px 24px 68px; text-align: center; }
+.hero-eyebrow { font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 14px; }
+.hero h1 { font-family: 'Merriweather', serif; font-size: clamp(26px, 4vw, 44px); color: var(--white); line-height: 1.2; margin-bottom: 14px; }
+.hero h1 span { color: var(--accent); }
+.hero p { color: #A8BFDF; font-size: 16px; max-width: 540px; margin: 0 auto 30px; }
+.search-box {
+  background: var(--white); border-radius: 16px; padding: 18px;
+  max-width: 820px; margin: 0 auto; box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+  display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px;
+}
+.search-box select, .search-box input {
+  border: 1.5px solid var(--gray200); border-radius: 8px; padding: 11px 13px;
+  font-size: 14px; font-family: 'Inter', sans-serif; outline: none; background: var(--white);
+}
+.search-box select:focus, .search-box input:focus { border-color: var(--blue); }
+.search-btn { background: var(--blue); color: var(--white); border: none; border-radius: 8px; padding: 11px 26px; font-size: 15px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.hero-stats { display: flex; justify-content: center; gap: 38px; margin-top: 34px; flex-wrap: wrap; }
+.stat { text-align: center; }
+.stat-num { font-size: 26px; font-weight: 800; color: var(--white); }
+.stat-label { font-size: 12px; color: #A8BFDF; }
+
+/* ANALIZ BANNER */
+.analiz-banner { background: linear-gradient(135deg, #4C1D95, #7C3AED); padding: 18px 28px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.analiz-banner-icon { font-size: 34px; }
+.analiz-banner-text h3 { font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 3px; }
+.analiz-banner-text p { font-size: 13px; color: #C4B5FD; }
+.analiz-banner-btns { margin-left: auto; display: flex; gap: 10px; }
+.btn-purple-outline { border: 2px solid #C4B5FD; color: #C4B5FD; background: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.btn-purple-solid { background: var(--white); color: var(--purple); border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+/* FILTERS */
+.filters-bar { background: var(--white); border-bottom: 1px solid var(--gray200); padding: 12px 24px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.filter-chip { border: 1.5px solid var(--gray200); border-radius: 20px; padding: 5px 14px; font-size: 13px; color: var(--gray600); cursor: pointer; background: var(--white); }
+.filter-chip:hover, .filter-chip.active { border-color: var(--blue); color: var(--blue); background: var(--sky); font-weight: 600; }
+
+/* LAYOUT */
+.main { max-width: 1280px; margin: 0 auto; padding: 24px; display: grid; grid-template-columns: 265px 1fr; gap: 22px; }
+.sidebar { display: flex; flex-direction: column; gap: 14px; }
+.sidebar-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--gray200); padding: 18px; }
+.sidebar-card h3 { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 12px; }
+.group-label { font-size: 11px; font-weight: 700; color: var(--gray400); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin: 12px 0 6px; }
+.checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 3px 0; cursor: pointer; }
+.checkbox-row input { accent-color: var(--blue); }
+.count-badge { margin-left: auto; background: var(--gray100); border-radius: 10px; font-size: 11px; padding: 1px 7px; color: var(--gray600); }
+.apply-btn { width: 100%; background: var(--blue); color: var(--white); border: none; border-radius: 8px; padding: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 12px; }
+
+.unlock-card { background: linear-gradient(135deg, #0F2044, #1A56C4); border-radius: var(--radius); padding: 18px; color: white; }
+.unlock-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.unlock-card p { font-size: 12px; opacity: 0.85; margin-bottom: 8px; }
+.unlock-features { list-style: none; margin-bottom: 12px; }
+.unlock-features li { font-size: 12px; color: #A8BFDF; padding: 2px 0; }
+.unlock-features li::before { content: "✓ "; color: var(--accent); font-weight: 700; }
+.unlock-price { font-size: 20px; font-weight: 800; color: var(--accent); margin-bottom: 10px; }
+.unlock-price span { font-size: 12px; font-weight: 400; color: #A8BFDF; }
+.unlock-btn { width: 100%; background: var(--accent); color: var(--navy); border: none; border-radius: 8px; padding: 10px; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+/* RESULTS */
+.results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.results-count { font-size: 15px; font-weight: 600; }
+.results-count span { color: var(--blue); }
+.sort-select { border: 1.5px solid var(--gray200); border-radius: 8px; padding: 7px 12px; font-size: 13px; outline: none; font-family: 'Inter', sans-serif; }
+.school-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)); gap: 18px; }
+.school-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--gray200); overflow: hidden; transition: all 0.2s; cursor: pointer; }
+.school-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+.card-img { height: 145px; background: linear-gradient(135deg, #DBEAFE, #EEF4FF); position: relative; display: flex; align-items: center; justify-content: center; font-size: 42px; }
+.card-img.g { background: linear-gradient(135deg, #DCFCE7, #F0FDF4); }
+.card-img.a { background: linear-gradient(135deg, #FEF3C7, #FFFBEB); }
+.card-img.p { background: linear-gradient(135deg, #EDE9FE, #F5F3FF); }
+.card-badges { position: absolute; top: 10px; left: 10px; display: flex; gap: 5px; }
+.badge { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 5px; }
+.badge-type { background: var(--navy); color: white; }
+.badge-verified { background: var(--green); color: white; }
+.badge-level { background: var(--white); border: 1.5px solid var(--gray200); color: var(--navy); }
+.shortlist-btn { position: absolute; top: 10px; right: 10px; background: var(--white); border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+.shortlist-btn.saved { color: #EF4444; }
+.card-body { padding: 14px; }
+.card-name { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+.card-location { font-size: 12px; color: var(--gray400); margin-bottom: 10px; }
+.card-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.meta-tag { background: var(--sky); color: var(--blue); font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 5px; }
+.card-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 12px; padding: 10px; background: var(--gray50); border-radius: 8px; }
+.card-stat-item { text-align: center; }
+.card-stat-val { font-size: 15px; font-weight: 800; color: var(--navy); }
+.card-stat-val.green { color: var(--green); }
+.card-stat-val.amber { color: #D97706; }
+.card-stat-label { font-size: 10px; color: var(--gray400); }
+.locked-row { display: flex; align-items: center; gap: 8px; background: var(--gray100); border-radius: 8px; padding: 9px 12px; margin-bottom: 12px; cursor: pointer; }
+.locked-row:hover { background: var(--sky); }
+.locked-text { font-size: 12px; color: var(--gray600); flex: 1; }
+.locked-text strong { color: var(--blue); display: block; font-size: 11px; }
+.card-footer { display: flex; gap: 7px; }
+.btn-primary { flex: 1; background: var(--blue); color: white; border: none; border-radius: 8px; padding: 9px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.btn-secondary { flex: 1; background: white; color: var(--blue); border: 1.5px solid var(--blue); border-radius: 8px; padding: 9px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+/* SURVEY */
+.survey-hero { background: linear-gradient(135deg, #1e1b4b, #4338CA); padding: 48px 24px 56px; text-align: center; }
+.survey-hero h1 { font-family: 'Merriweather', serif; font-size: clamp(24px, 4vw, 38px); color: var(--white); margin-bottom: 10px; }
+.survey-hero h1 em { color: #A5B4FC; font-style: normal; }
+.survey-hero p { color: #C7D2FE; font-size: 15px; }
+.survey-container { max-width: 700px; margin: 36px auto; padding: 0 24px 70px; }
+.progress-bar-wrap { background: var(--gray200); border-radius: 99px; height: 6px; margin-bottom: 8px; }
+.progress-bar-fill { background: linear-gradient(90deg, #4338CA, #7C3AED); height: 6px; border-radius: 99px; transition: width 0.4s; }
+.progress-label { font-size: 12px; color: var(--gray400); margin-bottom: 24px; }
+.survey-step { display: none; }
+.survey-step.active { display: block; }
+.step-card { background: var(--white); border-radius: 16px; border: 1px solid var(--gray200); padding: 30px; box-shadow: var(--shadow); }
+.step-eyebrow { font-size: 12px; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.step-question { font-family: 'Merriweather', serif; font-size: 19px; color: var(--navy); margin-bottom: 6px; }
+.step-desc { font-size: 13px; color: var(--gray600); margin-bottom: 22px; }
+.option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 22px; }
+.option-grid.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+.opt-btn { border: 2px solid var(--gray200); border-radius: 10px; padding: 14px 12px; cursor: pointer; background: white; text-align: center; transition: all 0.15s; }
+.opt-btn:hover { border-color: var(--purple); background: #F5F3FF; }
+.opt-btn.selected { border-color: var(--purple); background: #EDE9FE; }
+.opt-icon { font-size: 22px; margin-bottom: 5px; }
+.opt-label { font-size: 13px; font-weight: 600; color: var(--navy); }
+.opt-sub { font-size: 11px; color: var(--gray400); }
+.survey-range-val { font-size: 26px; font-weight: 800; color: var(--purple); text-align: center; margin-bottom: 8px; }
+input[type=range].survey-range { width: 100%; accent-color: var(--purple); }
+.survey-range-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--gray400); margin-top: 5px; }
+.check-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; }
+.check-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border: 2px solid var(--gray200); border-radius: 10px; cursor: pointer; }
+.check-item:hover { border-color: var(--purple); background: #F5F3FF; }
+.check-item.checked { border-color: var(--purple); background: #EDE9FE; }
+.check-item input { accent-color: var(--purple); }
+.check-item-label { font-size: 13px; font-weight: 600; color: var(--navy); }
+.check-item-sub { font-size: 11px; color: var(--gray400); }
+.step-nav { display: flex; justify-content: space-between; align-items: center; }
+.step-back { background: none; border: 1.5px solid var(--gray200); color: var(--gray600); border-radius: 8px; padding: 10px 20px; font-size: 14px; cursor: pointer; }
+.step-next { background: var(--purple); color: white; border: none; border-radius: 8px; padding: 11px 26px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.survey-input { border: 2px solid var(--gray200); border-radius: 10px; padding: 13px; font-size: 14px; font-family: 'Inter', sans-serif; outline: none; width: 100%; }
+.survey-results { display: none; }
+.results-hero-card { background: linear-gradient(135deg, #1e1b4b, #4338CA); border-radius: 16px; padding: 30px; text-align: center; margin-bottom: 22px; }
+.results-hero-card h2 { font-family: 'Merriweather', serif; font-size: 23px; color: white; margin-bottom: 6px; }
+.results-hero-card p { color: #C7D2FE; font-size: 13px; }
+.match-score-big { font-size: 52px; font-weight: 800; color: var(--accent); margin: 10px 0 2px; }
+.top-schools-label { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 12px; text-transform: uppercase; }
+.result-school-card { background: white; border-radius: 12px; border: 1px solid var(--gray200); padding: 15px; display: flex; align-items: center; gap: 13px; margin-bottom: 11px; box-shadow: var(--shadow); }
+.result-rank { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.rank-1 { background: #FEF3C7; }
+.rank-2 { background: #F3F4F6; }
+.rank-3 { background: #FEE2E2; }
+.result-school-info { flex: 1; }
+.result-school-name { font-size: 15px; font-weight: 700; color: var(--navy); }
+.result-school-meta { font-size: 12px; color: var(--gray400); }
+.match-pill { background: #DCFCE7; color: #15803D; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+.result-action-row { display: flex; gap: 10px; margin-top: 18px; }
+.share-note { background: #EDE9FE; border-radius: 10px; padding: 13px 15px; font-size: 12px; color: #4C1D95; margin-top: 15px; line-height: 1.6; }
+
+/* ANALIZ */
+.analiz-hero { background: linear-gradient(135deg, #1e1b4b, #7C3AED); padding: 52px 24px 58px; text-align: center; }
+.analiz-hero .eyebrow { font-size: 12px; font-weight: 700; color: #A5B4FC; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+.analiz-hero h1 { font-family: 'Merriweather', serif; font-size: clamp(24px, 4vw, 40px); color: white; margin-bottom: 10px; }
+.analiz-hero h1 em { color: var(--accent); font-style: normal; }
+.analiz-hero p { color: #C4B5FD; font-size: 15px; max-width: 500px; margin: 0 auto 24px; }
+.analiz-hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-white { background: white; color: var(--purple); border: none; border-radius: 10px; padding: 12px 22px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.btn-outline-white { background: none; color: white; border: 2px solid rgba(255,255,255,0.4); border-radius: 10px; padding: 12px 22px; font-size: 14px; cursor: pointer; }
+.analiz-section { max-width: 1100px; margin: 0 auto; padding: 44px 24px; }
+.analiz-section-title { font-family: 'Merriweather', serif; font-size: 21px; color: var(--navy); margin-bottom: 5px; }
+.analiz-section-sub { font-size: 13px; color: var(--gray400); margin-bottom: 24px; }
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(195px, 1fr)); gap: 13px; margin-bottom: 36px; }
+.metric-card { background: white; border-radius: var(--radius); border: 1px solid var(--gray200); padding: 18px; text-align: center; }
+.metric-num { font-size: 30px; font-weight: 800; color: var(--purple); margin-bottom: 3px; }
+.metric-label { font-size: 12px; color: var(--gray600); }
+.metric-trend { font-size: 12px; color: var(--green); margin-top: 3px; font-weight: 600; }
+.report-preview { background: white; border-radius: 16px; border: 1px solid var(--gray200); padding: 26px; box-shadow: var(--shadow); margin-bottom: 30px; }
+.report-header { display: flex; align-items: center; gap: 13px; margin-bottom: 18px; flex-wrap: wrap; }
+.report-logo { width: 46px; height: 46px; background: linear-gradient(135deg, #EDE9FE, #DDD6FE); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.report-title { font-size: 16px; font-weight: 700; color: var(--navy); }
+.report-period { font-size: 12px; color: var(--gray400); }
+.report-badge { margin-left: auto; background: #DCFCE7; color: var(--green); font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 20px; }
+.report-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
+.r-stat { background: var(--gray50); border-radius: 10px; padding: 13px; text-align: center; }
+.r-stat-val { font-size: 22px; font-weight: 800; color: var(--navy); }
+.r-stat-val.up { color: var(--green); }
+.r-stat-label { font-size: 11px; color: var(--gray400); }
+.bar-chart-label { font-size: 12px; font-weight: 600; color: var(--gray600); margin-bottom: 9px; }
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+.bar-row-label { font-size: 12px; color: var(--gray600); width: 105px; flex-shrink: 0; }
+.bar-track { flex: 1; background: var(--gray100); border-radius: 4px; height: 10px; }
+.bar-fill { height: 10px; border-radius: 4px; background: linear-gradient(90deg, #7C3AED, #A78BFA); }
+.bar-val { font-size: 12px; font-weight: 700; width: 34px; text-align: right; }
+.locked-report { background: linear-gradient(135deg, #F5F3FF, #EDE9FE); border: 2px dashed #C4B5FD; border-radius: 12px; padding: 22px; text-align: center; margin-top: 14px; }
+.locked-report h4 { font-size: 15px; font-weight: 700; color: var(--purple); margin-bottom: 5px; }
+.locked-report p { font-size: 13px; color: var(--gray600); margin-bottom: 12px; }
+.locked-report button { background: var(--purple); color: white; border: none; border-radius: 8px; padding: 10px 22px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.value-card { background: white; border-radius: var(--radius); border: 1px solid var(--gray200); padding: 22px; }
+.value-card .vc-icon { font-size: 22px; margin-bottom: 8px; }
+.value-card .vc-title { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+.value-card ul { list-style: none; font-size: 13px; color: var(--gray600); line-height: 2; }
+
+/* PRICING */
+.pricing-hero { background: var(--navy); padding: 48px 24px; text-align: center; }
+.pricing-hero h1 { font-family: 'Merriweather', serif; font-size: clamp(24px, 3.5vw, 36px); color: white; margin-bottom: 8px; }
+.pricing-hero p { color: #A8BFDF; font-size: 14px; }
+.pricing-toggle-wrap { display: flex; justify-content: center; background: var(--gray50); border-bottom: 1px solid var(--gray200); }
+.pricing-tab { padding: 14px 30px; font-size: 15px; font-weight: 600; color: var(--gray600); cursor: pointer; border-bottom: 3px solid transparent; }
+.pricing-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+.pricing-section { max-width: 1100px; margin: 0 auto; padding: 40px 24px 56px; }
+.pricing-panel { display: none; }
+.pricing-panel.active { display: block; }
+.veli-free-card { background: white; border-radius: 16px; border: 1px solid var(--gray200); padding: 26px; margin-bottom: 22px; box-shadow: var(--shadow); }
+.veli-free-card h3 { font-size: 17px; font-weight: 700; color: var(--navy); margin-bottom: 5px; }
+.free-features { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 12px; }
+.free-features li { font-size: 13px; color: var(--gray600); }
+.free-features li::before { content: "✓ "; color: var(--green); font-weight: 700; }
+.unlock-explainer { background: linear-gradient(135deg, #EEF4FF, #DBEAFE); border-radius: 16px; padding: 26px; border: 1px solid #BFDBFE; }
+.unlock-explainer h3 { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 5px; }
+.unlock-explainer > p { font-size: 13px; color: var(--gray600); margin-bottom: 16px; }
+.unlock-example { display: flex; align-items: center; gap: 13px; background: white; border-radius: 10px; padding: 13px 15px; margin-bottom: 9px; }
+.unlock-example-icon { font-size: 22px; }
+.unlock-example-text { flex: 1; font-size: 13px; }
+.unlock-example-price { font-size: 15px; font-weight: 800; color: var(--blue); white-space: nowrap; }
+.unlock-note { font-size: 12px; color: var(--gray400); font-style: italic; margin-top: 8px; }
+.pricing-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(275px, 1fr)); gap: 17px; margin-bottom: 28px; }
+.pricing-card { background: white; border-radius: 16px; border: 2px solid var(--gray200); padding: 26px; position: relative; }
+.pricing-card.featured { border-color: var(--blue); }
+.pricing-card.featured-purple { border-color: var(--purple); }
+.featured-ribbon { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--blue); color: white; font-size: 11px; font-weight: 700; padding: 4px 13px; border-radius: 20px; white-space: nowrap; }
+.featured-ribbon.purple { background: var(--purple); }
+.plan-name { font-size: 12px; font-weight: 700; color: var(--gray600); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+.plan-duration { font-size: 25px; font-weight: 800; color: var(--navy); margin-bottom: 3px; }
+.plan-price { font-size: 21px; font-weight: 800; color: var(--blue); }
+.plan-price.purple { color: var(--purple); }
+.plan-per { font-size: 12px; color: var(--gray400); margin-bottom: 5px; }
+.plan-saving { background: #DCFCE7; color: var(--green); font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 20px; display: inline-block; margin-bottom: 14px; }
+.plan-features { list-style: none; margin-bottom: 18px; }
+.plan-features li { font-size: 13px; color: var(--gray600); padding: 4px 0; border-bottom: 1px solid var(--gray100); }
+.plan-features li::before { content: "✓ "; color: var(--green); font-weight: 700; }
+.plan-features li.locked-feat { color: var(--gray400); }
+.plan-features li.locked-feat::before { content: "— "; color: var(--gray400); }
+.plan-cta { width: 100%; border-radius: 8px; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; }
+.plan-cta.blue { background: var(--blue); color: white; }
+.plan-cta.purple { background: var(--purple); color: white; }
+.plan-cta.outline { background: none; border: 2px solid var(--gray200); color: var(--gray600); }
+.lead-fee-box { background: linear-gradient(135deg, #FEF3C7, #FFFBEB); border: 2px solid #FCD34D; border-radius: 16px; padding: 22px; }
+.lead-fee-box h3 { font-size: 16px; font-weight: 700; color: #92400E; margin-bottom: 5px; }
+.lead-fee-box > p { font-size: 13px; color: #78350F; margin-bottom: 13px; }
+.lead-fee-examples { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.lead-ex { background: white; border-radius: 10px; padding: 13px; text-align: center; }
+.lead-ex-icon { font-size: 19px; margin-bottom: 3px; }
+.lead-ex-label { font-size: 12px; color: var(--gray600); margin-bottom: 3px; }
+.lead-ex-price { font-size: 17px; font-weight: 800; color: #92400E; }
+.lead-fee-note { margin-top: 13px; font-size: 12px; color: #78350F; font-style: italic; }
+.analiz-addon { background: linear-gradient(135deg, #EDE9FE, #F5F3FF); border: 2px solid #C4B5FD; border-radius: 16px; padding: 22px; margin-top: 22px; }
+.analiz-addon h3 { font-size: 15px; font-weight: 700; color: var(--purple); margin-bottom: 5px; }
+.analiz-addon > p { font-size: 13px; color: var(--gray600); margin-bottom: 13px; }
+.analiz-addon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.addon-item { background: white; border-radius: 10px; padding: 11px 13px; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 500; color: var(--navy); }
+
+/* CITY */
+.city-section { padding: 40px 24px; max-width: 1280px; margin: 0 auto; }
+.section-title { font-family: 'Merriweather', serif; font-size: 21px; color: var(--navy); margin-bottom: 4px; }
+.section-sub { font-size: 13px; color: var(--gray400); margin-bottom: 22px; }
+.city-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 12px; }
+.city-card { background: white; border-radius: var(--radius); border: 1px solid var(--gray200); padding: 17px 13px; text-align: center; cursor: pointer; }
+.city-card:hover { border-color: var(--blue); background: var(--sky); }
+.city-icon { font-size: 24px; margin-bottom: 6px; }
+.city-name { font-size: 14px; font-weight: 700; color: var(--navy); }
+.city-count { font-size: 11px; color: var(--gray400); }
+
+/* FEATURES */
+.features-section { background: var(--navy); padding: 48px 24px; }
+.features-inner { max-width: 1280px; margin: 0 auto; }
+.features-title { font-family: 'Merriweather', serif; font-size: 25px; color: white; text-align: center; margin-bottom: 5px; }
+.features-sub { font-size: 13px; color: #A8BFDF; text-align: center; margin-bottom: 32px; }
+.features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(225px, 1fr)); gap: 17px; }
+.feature-card { background: rgba(255,255,255,0.07); border-radius: 12px; padding: 21px; }
+.feature-icon { font-size: 25px; margin-bottom: 9px; }
+.feature-title { font-size: 14px; font-weight: 700; color: white; margin-bottom: 5px; }
+.feature-desc { font-size: 12px; color: #A8BFDF; line-height: 1.6; }
+
+/* COMPARE BAR */
+.compare-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--navy); padding: 13px 24px; display: none; align-items: center; gap: 15px; z-index: 200; }
+.compare-bar.visible { display: flex; }
+.compare-bar p { color: white; font-size: 14px; }
+.compare-bar p span { color: var(--accent); font-weight: 700; }
+.compare-go { background: var(--accent); color: var(--navy); border: none; border-radius: 8px; padding: 10px 20px; font-weight: 700; cursor: pointer; margin-left: auto; }
+.compare-clear { color: #A8BFDF; background: none; border: none; cursor: pointer; font-size: 13px; }
+
+/* FOOTER */
+footer { background: var(--gray800); color: #9CA3AF; padding: 34px 24px 18px; }
+.footer-inner { max-width: 1280px; margin: 0 auto; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 26px; margin-bottom: 26px; }
+.footer-brand { font-family: 'Merriweather', serif; font-size: 16px; color: white; margin-bottom: 7px; }
+.footer-brand span { color: var(--accent); }
+.footer-desc { font-size: 12px; line-height: 1.7; }
+.footer-col h4 { font-size: 12px; font-weight: 700; color: white; margin-bottom: 9px; }
+.footer-col a { display: block; font-size: 12px; color: #9CA3AF; text-decoration: none; margin-bottom: 5px; cursor: pointer; }
+.footer-col a:hover { color: white; }
+.footer-bottom { border-top: 1px solid #374151; padding-top: 15px; font-size: 11px; text-align: center; }
+
+@media (max-width: 900px) {
+  .main { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .search-box { grid-template-columns: 1fr 1fr; }
+  .search-btn { grid-column: 1 / -1; }
+  .footer-grid, .two-col { grid-template-columns: 1fr 1fr; }
+  .report-stats, .lead-fee-examples { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .search-box, .option-grid, .option-grid.cols3, .footer-grid, .two-col, .free-features, .analiz-addon-grid, .pricing-cards-grid { grid-template-columns: 1fr; }
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div style="background:#F5A623;color:#0F2044;text-align:center;padding:7px;font-size:13px;font-weight:700">🟡 MOCKUP / VİZYON — Tasarım demosu, veriler temsilidir</div>
+<nav>
+  <div class="nav-logo">Okul<span>Bul</span></div>
+  <ul class="nav-links">
+    <li><a onclick="showPage('arama')">Okulları Ara</a></li>
+    <li><a onclick="showPage('survey')">Okul Eşleştir</a></li>
+    <li><a onclick="showPage('analiz')">Okul Analiz</a></li>
+    <li><a onclick="showPage('pricing')">Fiyatlar</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="nav-login">Giriş Yap</button>
+    <button class="nav-cta">Kayıt Ol</button>
+  </div>
+</nav>
+
+<div class="page-tabs">
+  <div class="page-tab active" data-page="arama" onclick="showPage('arama')">🏫 Okul Ara</div>
+  <div class="page-tab" data-page="survey" onclick="showPage('survey')">🎯 Okul Eşleştir</div>
+  <div class="page-tab" data-page="analiz" onclick="showPage('analiz')">📊 Okul Analiz</div>
+  <div class="page-tab" data-page="pricing" onclick="showPage('pricing')">💳 Fiyatlar</div>
+</div>
+
+<!-- ═══════ SAYFA 1: ARAMA ═══════ -->
+<div id="page-arama" class="page active">
+  <section class="hero">
+    <p class="hero-eyebrow">Türkiye'nin Okul Arama Platformu</p>
+    <h1>Çocuğunuza en uygun okulu <span>kolayca</span> bulun</h1>
+    <p>15.000+ okul arasından karşılaştırın, doğrulanmış bilgilere ulaşın, randevu alın.</p>
+    <div class="search-box">
+      <select><option>📍 İl seçin</option><option>İstanbul</option><option>Ankara</option><option>İzmir</option><option>Bursa</option><option>Antalya</option></select>
+      <select><option>🏫 Okul türü</option><option>Kreş / Anaokulu</option><option>İlkokul</option><option>Ortaokul</option><option>Lise / Kolej</option></select>
+      <input type="text" placeholder="🔍 Okul adı veya ilçe...">
+      <button class="search-btn">Ara</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">15.200+</div><div class="stat-label">Kayıtlı Okul</div></div>
+      <div class="stat"><div class="stat-num">3.840</div><div class="stat-label">Doğrulanmış Okul</div></div>
+      <div class="stat"><div class="stat-num">94K+</div><div class="stat-label">Veli Yorumu</div></div>
+      <div class="stat"><div class="stat-num">Ücretsiz</div><div class="stat-label">Temel Erişim</div></div>
+    </div>
+  </section>
+
+  <div class="analiz-banner">
+    <div class="analiz-banner-icon">📊</div>
+    <div class="analiz-banner-text">
+      <h3>Okul Analiz — Yeni Modülümüz!</h3>
+      <p>Okulunuzun talep & eşleşme raporu. Çok yıllı paket sahiplerine hediye.</p>
+    </div>
+    <div class="analiz-banner-btns">
+      <button class="btn-purple-outline" onclick="showPage('analiz')">Detaylar</button>
+      <button class="btn-purple-solid" onclick="showPage('pricing')">Paket Al</button>
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <button class="filter-chip active" onclick="toggleChip(this)">Tümü</button>
+    <button class="filter-chip" onclick="toggleChip(this)">Kreş</button>
+    <button class="filter-chip" onclick="toggleChip(this)">Anaokulu</button>
+    <button class="filter-chip" onclick="toggleChip(this)">İlkokul</button>
+    <button class="filter-chip" onclick="toggleChip(this)">Ortaokul</button>
+    <button class="filter-chip" onclick="toggleChip(this)">Lise</button>
+    <button class="filter-chip" onclick="toggleChip(this)">⭐ Yüksek Puanlı</button>
+    <button class="filter-chip" onclick="toggleChip(this)">✅ Doğrulanmış</button>
+  </div>
+
+  <div class="main">
+    <aside class="sidebar">
+      <div class="sidebar-card">
+        <h3>🔧 Filtrele</h3>
+        <label class="group-label">Okul Türü</label>
+        <label class="checkbox-row"><input type="checkbox" checked> Özel <span class="count-badge">8.240</span></label>
+        <label class="checkbox-row"><input type="checkbox"> Devlet <span class="count-badge">6.960</span></label>
+        <label class="group-label">Kademe</label>
+        <label class="checkbox-row"><input type="checkbox"> Kreş <span class="count-badge">1.120</span></label>
+        <label class="checkbox-row"><input type="checkbox" checked> Anaokulu <span class="count-badge">3.850</span></label>
+        <label class="checkbox-row"><input type="checkbox"> İlkokul <span class="count-badge">3.200</span></label>
+        <label class="checkbox-row"><input type="checkbox"> Ortaokul <span class="count-badge">2.940</span></label>
+        <label class="checkbox-row"><input type="checkbox"> Lise <span class="count-badge">4.090</span></label>
+        <label class="group-label">Eğitim Dili</label>
+        <label class="checkbox-row"><input type="checkbox" checked> Türkçe</label>
+        <label class="checkbox-row"><input type="checkbox"> İngilizce Ağırlıklı</label>
+        <label class="checkbox-row"><input type="checkbox"> Çift Dil</label>
+        <label class="group-label">Özellikler</label>
+        <label class="checkbox-row"><input type="checkbox"> Burs imkânı</label>
+        <label class="checkbox-row"><input type="checkbox" checked> Servis var</label>
+        <label class="checkbox-row"><input type="checkbox"> ✅ Doğrulanmış okul</label>
+        <button class="apply-btn">Filtrele</button>
+      </div>
+      <div class="unlock-card">
+        <h3>🔒 Premium Detay</h3>
+        <p>Okul başına tek seferlik ödeme:</p>
+        <ul class="unlock-features">
+          <li>Spor kulüpleri & aktiviteler</li>
+          <li>Kapsayıcılık politikası</li>
+          <li>Dil politikası detayı</li>
+          <li>Online randevu alma</li>
+        </ul>
+        <div class="unlock-price">19 ₺ <span>/ okul</span></div>
+        <button class="unlock-btn" onclick="showPage('pricing')">Nasıl Çalışır?</button>
+      </div>
+    </aside>
+
+    <main>
+      <div class="results-header">
+        <p class="results-count"><span>1.847</span> okul bulundu</p>
+        <select class="sort-select"><option>Önerilen</option><option>Puan</option><option>Ücret</option><option>Yakınlık</option></select>
+      </div>
+      <div class="school-grid">
+
+        <div class="school-card">
+          <div class="card-img g">🏫
+            <div class="card-badges"><span class="badge badge-type">Özel</span><span class="badge badge-verified">✅ Doğrulanmış</span></div>
+            <button class="shortlist-btn saved">♥</button>
+          </div>
+          <div class="card-body">
+            <div class="card-name">Doğa Koleji Kadıköy</div>
+            <div class="card-location">📍 Kadıköy, İstanbul</div>
+            <div class="card-meta"><span class="meta-tag">Anaokulu–Lise</span><span class="meta-tag">İngilizce</span><span class="meta-tag">Burs</span></div>
+            <div class="card-stats">
+              <div class="card-stat-item"><div class="card-stat-val green">4.6</div><div class="card-stat-label">Puan</div></div>
+              <div class="card-stat-item"><div class="card-stat-val">318</div><div class="card-stat-label">Yorum</div></div>
+              <div class="card-stat-item"><div class="card-stat-val amber">95K₺</div><div class="card-stat-label">Yıllık</div></div>
+            </div>
+            <div class="locked-row" onclick="showPage('pricing')">🔒 <div class="locked-text">Spor kulüpleri, dil & kapsayıcılık politikası<strong>🔓 19 ₺'ye kilidi aç →</strong></div></div>
+            <div class="card-footer"><button class="btn-primary">Detay Gör</button><button class="btn-secondary cmp">+ Karşılaştır</button></div>
+          </div>
+        </div>
+
+        <div class="school-card">
+          <div class="card-img">🌿
+            <div class="card-badges"><span class="badge badge-type">Özel</span><span class="badge badge-level">Anaokulu</span></div>
+            <button class="shortlist-btn">♡</button>
+          </div>
+          <div class="card-body">
+            <div class="card-name">Özel Bahçeşehir Anaokulu</div>
+            <div class="card-location">📍 Bahçeşehir, İstanbul</div>
+            <div class="card-meta"><span class="meta-tag">2–6 Yaş</span><span class="meta-tag">Bahçeli</span><span class="meta-tag">Servis</span></div>
+            <div class="card-stats">
+              <div class="card-stat-item"><div class="card-stat-val green">4.8</div><div class="card-stat-label">Puan</div></div>
+              <div class="card-stat-item"><div class="card-stat-val">84</div><div class="card-stat-label">Yorum</div></div>
+              <div class="card-stat-item"><div class="card-stat-val amber">48K₺</div><div class="card-stat-label">Yıllık</div></div>
+            </div>
+            <div class="locked-row" onclick="showPage('pricing')">🔒 <div class="locked-text">Dil politikası, kulüpler, randevu<strong>🔓 19 ₺'ye kilidi aç →</strong></div></div>
+            <div class="card-footer"><button class="btn-primary">Detay Gör</button><button class="btn-secondary cmp">+ Karşılaştır</button></div>
+          </div>
+        </div>
+
+        <div class="school-card">
+          <div class="card-img a">🎓
+            <div class="card-badges"><span class="badge badge-type">Özel</span><span class="badge badge-verified">✅ Doğrulanmış</span></div>
+            <button class="shortlist-btn">♡</button>
+          </div>
+          <div class="card-body">
+            <div class="card-name">Bahçeşehir Koleji Maslak</div>
+            <div class="card-location">📍 Maslak, İstanbul</div>
+            <div class="card-meta"><span class="meta-tag">9–12. Sınıf</span><span class="meta-tag">Yatılı</span><span class="meta-tag">Yüzme</span></div>
+            <div class="card-stats">
+              <div class="card-stat-item"><div class="card-stat-val green">4.5</div><div class="card-stat-label">Puan</div></div>
+              <div class="card-stat-item"><div class="card-stat-val">226</div><div class="card-stat-label">Yorum</div></div>
+              <div class="card-stat-item"><div class="card-stat-val amber">180K₺</div><div class="card-stat-label">Yıllık</div></div>
+            </div>
+            <div class="locked-row" onclick="showPage('pricing')">🔒 <div class="locked-text">Kapsayıcılık, kulüpler, randevu takvimi<strong>🔓 19 ₺'ye kilidi aç →</strong></div></div>
+            <div class="card-footer"><button class="btn-primary">Detay Gör</button><button class="btn-secondary cmp">+ Karşılaştır</button></div>
+          </div>
+        </div>
+
+        <div class="school-card">
+          <div class="card-img p">📚
+            <div class="card-badges"><span class="badge badge-type">Özel</span><span class="badge badge-level">K-12</span></div>
+            <button class="shortlist-btn">♡</button>
+          </div>
+          <div class="card-body">
+            <div class="card-name">TED Ankara Koleji</div>
+            <div class="card-location">📍 Çankaya, Ankara</div>
+            <div class="card-meta"><span class="meta-tag">1–12. Sınıf</span><span class="meta-tag">İngilizce</span><span class="meta-tag">Burs 50%</span></div>
+            <div class="card-stats">
+              <div class="card-stat-item"><div class="card-stat-val green">4.7</div><div class="card-stat-label">Puan</div></div>
+              <div class="card-stat-item"><div class="card-stat-val">412</div><div class="card-stat-label">Yorum</div></div>
+              <div class="card-stat-item"><div class="card-stat-val amber">145K₺</div><div class="card-stat-label">Yıllık</div></div>
+            </div>
+            <div class="locked-row" onclick="showPage('pricing')">🔒 <div class="locked-text">Spor kulüpleri, dil politikası, randevu<strong>🔓 19 ₺'ye kilidi aç →</strong></div></div>
+            <div class="card-footer"><button class="btn-primary">Detay Gör</button><button class="btn-secondary cmp">+ Karşılaştır</button></div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <div class="city-section">
+    <div class="section-title">İle göre ara</div>
+    <div class="section-sub">82 ilde 15.000'den fazla okul</div>
+    <div class="city-grid">
+      <div class="city-card"><div class="city-icon">🌆</div><div class="city-name">İstanbul</div><div class="city-count">4.820 okul</div></div>
+      <div class="city-card"><div class="city-icon">🏛</div><div class="city-name">Ankara</div><div class="city-count">2.310 okul</div></div>
+      <div class="city-card"><div class="city-icon">🌊</div><div class="city-name">İzmir</div><div class="city-count">1.640 okul</div></div>
+      <div class="city-card"><div class="city-icon">🌿</div><div class="city-name">Bursa</div><div class="city-count">890 okul</div></div>
+      <div class="city-card"><div class="city-icon">☀️</div><div class="city-name">Antalya</div><div class="city-count">760 okul</div></div>
+      <div class="city-card"><div class="city-icon">🏭</div><div class="city-name">Kocaeli</div><div class="city-count">540 okul</div></div>
+      <div class="city-card"><div class="city-icon">🌾</div><div class="city-name">Konya</div><div class="city-count">480 okul</div></div>
+      <div class="city-card"><div class="city-icon">🦅</div><div class="city-name">Gaziantep</div><div class="city-count">420 okul</div></div>
+    </div>
+  </div>
+
+  <section class="features-section">
+    <div class="features-inner">
+      <div class="features-title">Neden OkulBul?</div>
+      <div class="features-sub">Veliler, öğrenciler ve okullar için tek platform</div>
+      <div class="features-grid">
+        <div class="feature-card"><div class="feature-icon">✅</div><div class="feature-title">Doğrulanmış Profiller</div><div class="feature-desc">Üye okulların spor kulüpleri, dil & kapsayıcılık politikaları doğrulanmış ve güncel.</div></div>
+        <div class="feature-card"><div class="feature-icon">🎯</div><div class="feature-title">Akıllı Eşleştirme</div><div class="feature-desc">Survey'e dayalı Top 3 okul önerisi — çocuğunuzun profiline göre.</div></div>
+        <div class="feature-card"><div class="feature-icon">📅</div><div class="feature-title">Online Randevu</div><div class="feature-desc">Okul profesyonelleriyle takvim üzerinden görüşme ayarlayın.</div></div>
+        <div class="feature-card"><div class="feature-icon">📊</div><div class="feature-title">Okul Analiz</div><div class="feature-desc">Okullara yıl sonu talep & eşleşme raporu. Paket sahiplerine hediye.</div></div>
+        <div class="feature-card"><div class="feature-icon">⚖️</div><div class="feature-title">Karşılaştır</div><div class="feature-desc">4 okulu yan yana: puan, ücret, dil, tesis, burs.</div></div>
+        <div class="feature-card"><div class="feature-icon">🔔</div><div class="feature-title">Erken Kayıt Uyarısı</div><div class="feature-desc">Favori okulda kontenjan/burs açıldığında anında bildirim.</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════ SAYFA 2: SURVEY ═══════ -->
+<div id="page-survey" class="page">
+  <div class="survey-hero">
+    <h1>Çocuğunuza en uygun okulu <em>2 dakikada</em> bulun</h1>
+    <p>Birkaç soruya cevap verin, size en uygun Top 3 okulu belirleyelim. Ücretsiz.</p>
+  </div>
+  <div class="survey-container">
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill" style="width:14%"></div></div>
+    <div class="progress-label" id="progressLabel">Adım 1 / 7</div>
+
+    <div class="survey-step active" id="step1">
+      <div class="step-card">
+        <div class="step-eyebrow">Profil</div>
+        <div class="step-question">Siz kimsiniz?</div>
+        <div class="step-desc">Size en uygun soruları sormamız için.</div>
+        <div class="option-grid">
+          <div class="opt-btn" onclick="selectOpt(this)"><div class="opt-icon">👩‍👧</div><div class="opt-label">Veli</div><div class="opt-sub">Çocuğum için arıyorum</div></div>
+          <div class="opt-btn" onclick="selectOpt(this)"><div class="opt-icon">🎒</div><div class="opt-label">Öğrenci</div><div class="opt-sub">Kendim için arıyorum</div></div>
+        </div>
+        <div class="step-nav"><span></span><button class="step-next" onclick="nextStep(1)">Devam →</button></div>
+      </div>
+    </div>
+
+    <div class="survey-step" id="step2">
+      <div class="step-card">
+        <div class="step-eyebrow">Kademe</div>
+        <div class="step-question">Hangi eğitim kademesi?</div>
+        <div class="option-grid cols3">
+          <div class="opt-btn" onclick="selectOpt(this)"><div class="opt-icon">🧸</div><div class="opt-label">Kreş</div><div class="opt-sub">0–3 yaş</div></div>
+          <div class="opt-btn" onclick="selectOpt(this)"><div class="opt-icon">🌸</div><div class="opt-label">Anaokulu</div><div class="opt-sub">3–6 yaş</div></div>
+          <div class="opt-btn" onclick="selectOpt(this)"><div class="opt-icon">📚</div><div class="opt-label">İlkokul</div><div class="opt-sub">1–4. sınıf</div></div>
+          <div class="opt-btn" onclick="selectOpt(this)"><div class="opt-icon">🔬</div><div class="opt-label">Ortaokul</div><div class="opt-sub">5–8. sınıf</div></div>
+          <div class="opt-btn" onclick="selectOpt(this)"><div class="opt-icon">🎓</div><div class="opt-label">Lise</div><div class="opt-sub">9–12. sınıf</div></div>
+          <div class="opt-btn" onclick="selectOpt(this)"><div class="opt-icon">🏛</div><div class="opt-label">Kolej</div><div class="opt-sub">K–12 tam</div></div>
+        </div>
+        <div class="step-nav"><button class="step-back" onclick="prevStep(2)">← Geri</button><button class="step-next" onclick="nextStep(2)">Devam →</button></div>
+      </div>
+    </div>
+
+    <div class="survey-step" id="step3">
+      <div class="step-card">
+        <div class="step-eyebrow">Konum</div>
+        <div class="step-question">Hangi şehir ve maksimum mesafe?</div>
+        <select class="survey-input" style="margin-bottom:18px"><option>📍 İl seçin...</option><option>İstanbul</option><option>Ankara</option><option>İzmir</option><option>Bursa</option><option>Antalya</option></select>
+        <div class="survey-range-val" id="distVal">5 km</div>
+        <input type="range" class="survey-range" min="1" max="30" value="5" oninput="document.getElementById('distVal').textContent=this.value+' km'">
+        <div class="survey-range-labels"><span>1 km</span><span>30 km</span></div>
+        <div class="step-nav" style="margin-top:22px"><button class="step-back" onclick="prevStep(3)">← Geri</button><button class="step-next" onclick="nextStep(3)">Devam →</button></div>
+      </div>
+    </div>
+
+    <div class="survey-step" id="step4">
+      <div class="step-card">
+        <div class="step-eyebrow">Bütçe</div>
+        <div class="step-question">Yıllık ne kadar bütçe ayırabilirsiniz?</div>
+        <div class="survey-range-val" id="budgetVal">100.000 ₺</div>
+        <input type="range" class="survey-range" min="20" max="500" step="10" value="100" oninput="document.getElementById('budgetVal').textContent=this.value+'.000 ₺'">
+        <div class="survey-range-labels"><span>20K ₺</span><span>500K ₺+</span></div>
+        <div class="option-grid" style="margin-top:18px">
+          <div class="opt-btn" onclick="selectOpt(this)"><div class="opt-icon">🎯</div><div class="opt-label">Burs Arıyorum</div></div>
+          <div class="opt-btn" onclick="selectOpt(this)"><div class="opt-icon">💳</div><div class="opt-label">Taksit Önemli</div></div>
+        </div>
+        <div class="step-nav"><button class="step-back" onclick="prevStep(4)">← Geri</button><button class="step-next" onclick="nextStep(4)">Devam →</button></div>
+      </div>
+    </div>
+
+    <div class="survey-step" id="step5">
+      <div class="step-card">
+        <div class="step-eyebrow">Öncelikler</div>
+        <div class="step-question">Sizin için en önemli şeyler?</div>
+        <div class="step-desc">Birden fazla seçebilirsiniz.</div>
+        <div class="check-list">
+          <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><div><div class="check-item-label">🌍 Dil Eğitimi</div><div class="check-item-sub">İngilizce ağırlıklı veya çift dil</div></div></label>
+          <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><div><div class="check-item-label">⚽ Spor & Kulüpler</div><div class="check-item-sub">Spor takımları, kulüp çeşitliliği</div></div></label>
+          <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><div><div class="check-item-label">🎨 Sanat & Yaratıcılık</div><div class="check-item-sub">Müzik, tiyatro, görsel sanatlar</div></div></label>
+          <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><div><div class="check-item-label">🧠 Akademik Başarı</div><div class="check-item-sub">LGS/YKS oranları</div></div></label>
+          <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><div><div class="check-item-label">💛 Kapsayıcılık</div><div class="check-item-sub">Özel gereksinim & çeşitlilik politikası</div></div></label>
+          <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><div><div class="check-item-label">🏡 Küçük Sınıf</div><div class="check-item-sub">Butik, bireysel ilgi</div></div></label>
+        </div>
+        <div class="step-nav"><button class="step-back" onclick="prevStep(5)">← Geri</button><button class="step-next" onclick="nextStep(5)">Devam →</button></div>
+      </div>
+    </div>
+
+    <div class="survey-step" id="step6">
+      <div class="step-card">
+        <div class="step-eyebrow">Okul Tipi</div>
+        <div class="step-question">Nasıl bir okul profili tercih edersiniz?</div>
+        <div class="option-grid">
+          <div class="opt-btn" onclick="selectOpt(this)"><div class="opt-icon">🌿</div><div class="opt-label">Doğa Temelli</div><div class="opt-sub">Bahçeli, açık alan</div></div>
+          <div class="opt-btn" onclick="selectOpt(this)"><div class="opt-icon">🔬</div><div class="opt-label">STEM Ağırlıklı</div><div class="opt-sub">Fen & teknoloji</div></div>
+          <div class="opt-btn" onclick="selectOpt(this)"><div class="opt-icon">🎭</div><div class="opt-label">Sanat & Kültür</div><div class="opt-sub">Yaratıcı felsefe</div></div>
+          <div class="opt-btn" onclick="selectOpt(this)"><div class="opt-icon">⚡</div><div class="opt-label">Yoğun Akademik</div><div class="opt-sub">Sınav odaklı</div></div>
+        </div>
+        <div class="step-nav"><button class="step-back" onclick="prevStep(6)">← Geri</button><button class="step-next" onclick="nextStep(6)">Devam →</button></div>
+      </div>
+    </div>
+
+    <div class="survey-step" id="step7">
+      <div class="step-card">
+        <div class="step-eyebrow">Son Adım</div>
+        <div class="step-question">Sonuçlarınızı nereye gönderelim?</div>
+        <div class="step-desc">Ücretsiz. Spam yok.</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+          <input type="text" class="survey-input" placeholder="Adınız">
+          <input type="email" class="survey-input" placeholder="E-posta adresiniz">
+          <input type="tel" class="survey-input" placeholder="Telefon (isteğe bağlı)">
+        </div>
+        <div class="step-nav"><button class="step-back" onclick="prevStep(7)">← Geri</button><button class="step-next" style="background:var(--green)" onclick="showResults()">🎯 Eşleşmeleri Gör</button></div>
+      </div>
+    </div>
+
+    <div class="survey-results" id="surveyResults">
+      <div class="results-hero-card">
+        <p style="margin-bottom:2px">Eşleştirme tamamlandı</p>
+        <h2>Top 3 Okulunuz Hazır! 🎉</h2>
+        <div class="match-score-big">94%</div>
+        <p>En iyi eşleşmeniz %94 uyumlulukla belirlendi</p>
+      </div>
+      <div class="top-schools-label">🏆 Eşleşen Okullar</div>
+      <div class="result-school-card">
+        <div class="result-rank rank-1">🥇</div>
+        <div class="result-school-info"><div class="result-school-name">TED Ankara Koleji</div><div class="result-school-meta">Çankaya, Ankara · K-12 · İngilizce Ağırlıklı</div></div>
+        <div class="match-pill">%94 eşleşme</div>
+      </div>
+      <div class="result-school-card">
+        <div class="result-rank rank-2">🥈</div>
+        <div class="result-school-info"><div class="result-school-name">Doğa Koleji Kadıköy</div><div class="result-school-meta">Kadıköy, İstanbul · Anaokulu–Lise · Burs İmkânı</div></div>
+        <div class="match-pill" style="background:#EEF4FF;color:var(--blue)">%88 eşleşme</div>
+      </div>
+      <div class="result-school-card">
+        <div class="result-rank rank-3">🥉</div>
+        <div class="result-school-info"><div class="result-school-name">Bahçeşehir Koleji Maslak</div><div class="result-school-meta">Maslak, İstanbul · Lise · STEM Odaklı</div></div>
+        <div class="match-pill" style="background:#FEF3C7;color:#92400E">%81 eşleşme</div>
+      </div>
+      <div class="result-action-row">
+        <button class="btn-primary" style="background:var(--purple)" onclick="showPage('arama')">Tüm Profilleri Gör</button>
+        <button class="btn-secondary" style="border-color:var(--purple);color:var(--purple)">📄 PDF İndir</button>
+      </div>
+      <div class="share-note"><strong>📊 Okul Analiz:</strong> Survey sonuçları anonim derlenerek okullara "kaç veli profilinizle eşleşti" raporu olarak sunulur. Kişisel bilgileriniz okullarla paylaşılmaz.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ SAYFA 3: OKUL ANALİZ ═══════ -->
+<div id="page-analiz" class="page">
+  <div class="analiz-hero">
+    <div class="eyebrow">Okul Analiz Modülü</div>
+    <h1>Okulunuz hakkında <em>veliler ne düşünüyor?</em></h1>
+    <p>Kaç veli sizi aradı, kaçı eşleşti, hangi özellikleriniz öne çıktı — tek raporda.</p>
+    <div class="analiz-hero-btns">
+      <button class="btn-white" onclick="showPage('pricing')">Pakete Dahil Et</button>
+      <button class="btn-outline-white">Örnek Raporu Gör ↓</button>
+    </div>
+  </div>
+
+  <div class="analiz-section">
+    <div class="analiz-section-title">Neler Ölçüyoruz?</div>
+    <div class="analiz-section-sub">Gerçek zamanlı veri, yıl sonu detaylı rapor</div>
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="metric-num">2.840</div><div class="metric-label">Yıllık profil görüntülenme</div><div class="metric-trend">↑ %34</div></div>
+      <div class="metric-card"><div class="metric-num">340</div><div class="metric-label">Survey eşleşmesi</div><div class="metric-trend">↑ %18</div></div>
+      <div class="metric-card"><div class="metric-num">127</div><div class="metric-label">Bilgi talebi (lead)</div><div class="metric-trend">↑ %42</div></div>
+      <div class="metric-card"><div class="metric-num">4.6★</div><div class="metric-label">Ortalama veli puanı</div><div class="metric-trend">→ Sabit</div></div>
+    </div>
+
+    <div class="report-preview">
+      <div class="report-header">
+        <div class="report-logo">📊</div>
+        <div><div class="report-title">Doğa Koleji Kadıköy — Yıllık Analiz Raporu</div><div class="report-period">Ocak – Aralık 2025</div></div>
+        <div class="report-badge">✅ Doğrulanmış Okul</div>
+      </div>
+      <div class="report-stats">
+        <div class="r-stat"><div class="r-stat-val up">2.840</div><div class="r-stat-label">Profil görüntülenme</div></div>
+        <div class="r-stat"><div class="r-stat-val up">340</div><div class="r-stat-label">Survey eşleşmesi</div></div>
+        <div class="r-stat"><div class="r-stat-val">127</div><div class="r-stat-label">Bilgi talebi</div></div>
+      </div>
+      <div class="bar-chart-label">Sizi arayan velilerin öncelikleri (340 eşleşme)</div>
+      <div class="bar-row"><div class="bar-row-label">Dil Eğitimi</div><div class="bar-track"><div class="bar-fill" style="width:88%"></div></div><div class="bar-val">88%</div></div>
+      <div class="bar-row"><div class="bar-row-label">Spor & Kulüp</div><div class="bar-track"><div class="bar-fill" style="width:74%"></div></div><div class="bar-val">74%</div></div>
+      <div class="bar-row"><div class="bar-row-label">Akademik</div><div class="bar-track"><div class="bar-fill" style="width:68%"></div></div><div class="bar-val">68%</div></div>
+      <div class="bar-row"><div class="bar-row-label">Küçük Sınıf</div><div class="bar-track"><div class="bar-fill" style="width:52%"></div></div><div class="bar-val">52%</div></div>
+      <div class="bar-row"><div class="bar-row-label">Kapsayıcılık</div><div class="bar-track"><div class="bar-fill" style="width:38%"></div></div><div class="bar-val">38%</div></div>
+      <div class="locked-report">
+        <h4>🔒 Tam Raporu Görün</h4>
+        <p>Aylık breakdown, kayıt dönemi yoğunluğu, rakip kıyaslama ve bölge bazlı veli analizi çok yıllı paketlere dahildir.</p>
+        <button onclick="showPage('pricing')">Pakete Geç →</button>
+      </div>
+    </div>
+
+    <div class="analiz-section-title">Kim ne alır?</div>
+    <div class="analiz-section-sub">İki taraf için iki farklı değer</div>
+    <div class="two-col">
+      <div class="value-card">
+        <div class="vc-icon">👩‍👧</div>
+        <div class="vc-title">Veliler — Ücretsiz Survey Sonucu</div>
+        <ul>
+          <li>✓ Top 3 okul önerisi</li>
+          <li>✓ Eşleşme yüzdeleri</li>
+          <li>✓ Özet karşılaştırma</li>
+          <li>✓ PDF rapor indirme</li>
+          <li style="color:var(--blue)">🔓 19₺ ile okul detay kilidi açma</li>
+        </ul>
+      </div>
+      <div class="value-card">
+        <div class="vc-icon">🏫</div>
+        <div class="vc-title">Okullar — Pakete Dahil Rapor</div>
+        <ul>
+          <li>✓ Kaç veli sizi aradı?</li>
+          <li>✓ Kaçı profilinizle eşleşti?</li>
+          <li>✓ Hangi özellikleriniz öne çıktı?</li>
+          <li>✓ Aylık trend grafiği</li>
+          <li>✓ Kayıt dönemi yoğunluk analizi</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ SAYFA 4: FİYATLAR ═══════ -->
+<div id="page-pricing" class="page">
+  <div class="pricing-hero">
+    <h1>Şeffaf Fiyatlandırma</h1>
+    <p>Veliler: okul başına ödeme · Okullar: çok yıllı paket + lead fee</p>
+  </div>
+  <div class="pricing-toggle-wrap">
+    <div class="pricing-tab active" onclick="switchPricing('veli', this)">👨‍👩‍👧 Veliler</div>
+    <div class="pricing-tab" onclick="switchPricing('okul', this)">🏫 Okullar</div>
+  </div>
+
+  <div class="pricing-section">
+
+    <div class="pricing-panel active" id="panel-veli">
+      <div class="veli-free-card">
+        <h3>🆓 Ücretsiz Temel Erişim</h3>
+        <p style="font-size:13px;color:var(--gray600)">Kayıt olmadan hemen kullanın:</p>
+        <ul class="free-features">
+          <li>Okul arama & filtreleme</li>
+          <li>Genel puan & yorumlar</li>
+          <li>Şehir & kademe listeleme</li>
+          <li>Haritada görüntüleme</li>
+          <li>Survey & Top 3 eşleştirme</li>
+          <li>Temel karşılaştırma</li>
+        </ul>
+      </div>
+      <div class="unlock-explainer">
+        <h3>🔓 Okul Başına Detay Kilidi — 19 ₺</h3>
+        <p>İlgilendiğiniz okul için tek seferlik ödeme. Abonelik yok, taahhüt yok.</p>
+        <div class="unlock-example"><div class="unlock-example-icon">⚽</div><div class="unlock-example-text"><strong>Spor kulüpleri & aktiviteler</strong><br>Futbol, yüzme, satranç, robotik — hangi kulüpler var?</div><div class="unlock-example-price">dahil</div></div>
+        <div class="unlock-example"><div class="unlock-example-icon">💛</div><div class="unlock-example-text"><strong>Kapsayıcılık politikası</strong><br>Özel gereksinimler, çeşitlilik & eşitlik detayı</div><div class="unlock-example-price">dahil</div></div>
+        <div class="unlock-example"><div class="unlock-example-icon">🌍</div><div class="unlock-example-text"><strong>Dil politikası detayı</strong><br>Günlük İngilizce saati, yabancı öğretmen oranı</div><div class="unlock-example-price">dahil</div></div>
+        <div class="unlock-example"><div class="unlock-example-icon">📅</div><div class="unlock-example-text"><strong>Online randevu alma</strong><br>Okul profesyonelleriyle takvime göre görüşme</div><div class="unlock-example-price">dahil</div></div>
+        <p class="unlock-note">* Bir okul için 19 ₺ ödediğinizde o okulun TÜM detayları açılır. Her okul ayrı ücretlendirilir.</p>
+      </div>
+    </div>
+
+    <div class="pricing-panel" id="panel-okul">
+      <div class="analiz-section-title">Çok Yıllı Paketler</div>
+      <div class="analiz-section-sub">Ne kadar uzun, o kadar avantajlı. Tek seferde ödeme.</div>
+      <div class="pricing-cards-grid">
+
+        <div class="pricing-card">
+          <div class="plan-name">Başlangıç</div>
+          <div class="plan-duration">3 Yıllık</div>
+          <div class="plan-price">₺ 14.900</div>
+          <div class="plan-per">tek seferlik</div>
+          <div class="plan-saving">≈ 4.967 ₺ / yıl</div>
+          <ul class="plan-features">
+            <li>Doğrulanmış okul rozeti</li>
+            <li>Tam profil yönetimi</li>
+            <li>Veli yorumlarına yanıt</li>
+            <li>Temel dashboard</li>
+            <li>Yıllık Okul Analiz raporu 🎁</li>
+            <li class="locked-feat">Aylık breakdown</li>
+            <li class="locked-feat">Rakip karşılaştırma</li>
+            <li class="locked-feat">Öncelikli sıralama</li>
+          </ul>
+          <button class="plan-cta outline">Paketi Seç</button>
+        </div>
+
+        <div class="pricing-card featured">
+          <div class="featured-ribbon">⭐ En Popüler</div>
+          <div class="plan-name">Profesyonel</div>
+          <div class="plan-duration">4 Yıllık</div>
+          <div class="plan-price">₺ 17.900</div>
+          <div class="plan-per">tek seferlik</div>
+          <div class="plan-saving">≈ 4.475 ₺ / yıl · %10 tasarruf</div>
+          <ul class="plan-features">
+            <li>Doğrulanmış okul rozeti</li>
+            <li>Tam profil yönetimi</li>
+            <li>Veli yorumlarına yanıt</li>
+            <li>Gelişmiş dashboard</li>
+            <li>Yıllık Okul Analiz raporu 🎁</li>
+            <li>Aylık breakdown</li>
+            <li>Premium sıralama</li>
+            <li class="locked-feat">Rakip karşılaştırma</li>
+          </ul>
+          <button class="plan-cta blue">Paketi Seç</button>
+        </div>
+
+        <div class="pricing-card featured-purple">
+          <div class="featured-ribbon purple">🚀 En Avantajlı</div>
+          <div class="plan-name">Kurumsal</div>
+          <div class="plan-duration">5 Yıllık</div>
+          <div class="plan-price purple">₺ 19.900</div>
+          <div class="plan-per">tek seferlik</div>
+          <div class="plan-saving">≈ 3.980 ₺ / yıl · %20 tasarruf</div>
+          <ul class="plan-features">
+            <li>Doğrulanmış okul rozeti</li>
+            <li>Tam profil yönetimi</li>
+            <li>Veli yorumlarına yanıt</li>
+            <li>Gelişmiş dashboard</li>
+            <li>Yıllık Okul Analiz raporu 🎁</li>
+            <li>Aylık breakdown</li>
+            <li>Öncelikli sıralama</li>
+            <li>Rakip karşılaştırma</li>
+          </ul>
+          <button class="plan-cta purple">Paketi Seç</button>
+        </div>
+
+      </div>
+
+      <div class="lead-fee-box">
+        <h3>📩 Lead Fee — Tüm Paketlere Ek</h3>
+        <p>Bir veli okulunuzdan bilgi talebinde bulunduğunda lead fee uygulanır. Paket olmadan da lead alabilirsiniz.</p>
+        <div class="lead-fee-examples">
+          <div class="lead-ex"><div class="lead-ex-icon">📧</div><div class="lead-ex-label">E-posta & İsim</div><div class="lead-ex-price">25 ₺</div></div>
+          <div class="lead-ex"><div class="lead-ex-icon">📞</div><div class="lead-ex-label">Telefon dahil</div><div class="lead-ex-price">45 ₺</div></div>
+          <div class="lead-ex"><div class="lead-ex-icon">📅</div><div class="lead-ex-label">Randevu talebi</div><div class="lead-ex-price">65 ₺</div></div>
+        </div>
+        <p class="lead-fee-note">* Lead fee indirimi: 3 yıllıkta %10, 4 yıllıkta %20, 5 yıllıkta %30.</p>
+      </div>
+
+      <div class="analiz-addon">
+        <h3>📊 Okul Analiz — Paketlere Hediye</h3>
+        <p>Her paket sahibine yıl sonu otomatik teslim. Ekstra ücret yok.</p>
+        <div class="analiz-addon-grid">
+          <div class="addon-item">📈 Profil görüntülenme trendi</div>
+          <div class="addon-item">🎯 Survey eşleşme sayısı</div>
+          <div class="addon-item">👥 Veli demografisi</div>
+          <div class="addon-item">🏆 Öne çıkan özellikleriniz</div>
+          <div class="addon-item">📅 Kayıt dönemi yoğunluğu</div>
+          <div class="addon-item">🔔 Lead kaynağı breakdown</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="compare-bar" id="compareBar">
+  <p><span id="compareCount">0</span> okul seçildi</p>
+  <button class="compare-clear" onclick="clearCompare()">Temizle</button>
+  <button class="compare-go">Karşılaştır →</button>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">Okul<span>Bul</span></div>
+        <p class="footer-desc">Türkiye'nin okul arama ve eşleştirme platformu. 15.000+ okul, 82 il.</p>
+      </div>
+      <div class="footer-col"><h4>Platform</h4><a onclick="showPage('arama')">Okulları Ara</a><a onclick="showPage('survey')">Okul Eşleştir</a><a onclick="showPage('analiz')">Okul Analiz</a><a onclick="showPage('pricing')">Fiyatlar</a></div>
+      <div class="footer-col"><h4>Şehirler</h4><a>İstanbul</a><a>Ankara</a><a>İzmir</a><a>Tüm İller</a></div>
+      <div class="footer-col"><h4>Kurumsal</h4><a>Okulunuzu Ekleyin</a><a>Hakkımızda</a><a>İletişim</a><a>KVKK</a></div>
+    </div>
+    <div class="footer-bottom">© 2025 OkulBul · Okul Analiz modülü dahildir</div>
+  </div>
+</footer>
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const tab = document.querySelector('.page-tab[data-page="' + id + '"]');
+  if (tab) tab.classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+function toggleChip(el) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+let currentStep = 1;
+const totalSteps = 7;
+function updateProgress(s) {
+  document.getElementById('progressFill').style.width = Math.round((s/totalSteps)*100) + '%';
+  document.getElementById('progressLabel').textContent = 'Adım ' + s + ' / ' + totalSteps;
+}
+function nextStep(f) {
+  document.getElementById('step' + f).classList.remove('active');
+  currentStep = f + 1;
+  document.getElementById('step' + currentStep).classList.add('active');
+  updateProgress(currentStep);
+}
+function prevStep(f) {
+  document.getElementById('step' + f).classList.remove('active');
+  currentStep = f - 1;
+  document.getElementById('step' + currentStep).classList.add('active');
+  updateProgress(currentStep);
+}
+function showResults() {
+  document.getElementById('step7').classList.remove('active');
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressLabel').textContent = 'Eşleştirme tamamlandı!';
+  document.getElementById('surveyResults').style.display = 'block';
+}
+function selectOpt(el) {
+  el.parentElement.querySelectorAll('.opt-btn').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  el.querySelector('input').checked = el.classList.contains('checked');
+}
+let compareCount = 0;
+document.querySelectorAll('.cmp').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (compareCount < 4) {
+      compareCount++;
+      btn.textContent = '✓ Eklendi';
+      document.getElementById('compareCount').textContent = compareCount;
+      document.getElementById('compareBar').classList.add('visible');
+    }
+  });
+});
+function clearCompare() {
+  compareCount = 0;
+  document.getElementById('compareBar').classList.remove('visible');
+  document.querySelectorAll('.cmp').forEach(b => b.textContent = '+ Karşılaştır');
+}
+document.querySelectorAll('.shortlist-btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    btn.classList.toggle('saved');
+    btn.textContent = btn.classList.contains('saved') ? '♥' : '♡';
+  });
+});
+function switchPricing(panel, el) {
+  document.querySelectorAll('.pricing-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pricing-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + panel).classList.add('active');
+  if (el) el.classList.add('active');
+}
+</script>
+</body>
+</html>
