@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OkulBul — Canlı (API Bağlı)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #0F2044; --blue: #1A56C4; --sky: #EEF4FF;
+  --accent: #F5A623; --green: #16A34A; --purple: #7C3AED;
+  --gray50: #F9FAFB; --gray100: #F3F4F6; --gray200: #E5E7EB;
+  --gray400: #9CA3AF; --gray600: #4B5563; --gray800: #1F2937;
+  --white: #FFF; --radius: 12px; --shadow: 0 4px 24px rgba(15,32,68,0.10);
+}
+body { font-family: 'Inter', sans-serif; background: var(--gray50); color: var(--gray800); }
+nav { background: var(--white); border-bottom: 1px solid var(--gray200); position: sticky; top: 0; z-index: 100; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 58px; }
+.nav-logo { font-family: 'Merriweather', serif; font-size: 20px; color: var(--navy); }
+.nav-logo span { color: var(--blue); }
+.api-status { font-size: 12px; padding: 4px 12px; border-radius: 20px; font-weight: 600; }
+.api-status.ok { background: #DCFCE7; color: var(--green); }
+.api-status.err { background: #FEE2E2; color: #DC2626; }
+.page-tabs { display: flex; background: var(--navy); padding: 0 24px; overflow-x: auto; }
+.page-tab { padding: 13px 20px; font-size: 14px; color: #A8BFDF; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+.page-tab.active { color: var(--white); border-bottom-color: var(--accent); font-weight: 700; }
+.page { display: none; }
+.page.active { display: block; }
+
+.hero { background: linear-gradient(135deg, var(--navy), #1A3A7A); padding: 40px 24px 48px; text-align: center; }
+.hero h1 { font-family: 'Merriweather', serif; font-size: clamp(22px, 4vw, 36px); color: var(--white); margin-bottom: 10px; }
+.hero h1 span { color: var(--accent); }
+.hero p { color: #A8BFDF; font-size: 14px; margin-bottom: 24px; }
+.search-box { background: var(--white); border-radius: 14px; padding: 14px; max-width: 860px; margin: 0 auto; box-shadow: 0 8px 40px rgba(0,0,0,0.25); display: grid; grid-template-columns: 1fr 1fr 1fr 1.4fr auto; gap: 9px; }
+.search-box select, .search-box input { border: 1.5px solid var(--gray200); border-radius: 8px; padding: 10px 12px; font-size: 14px; font-family: 'Inter', sans-serif; outline: none; background: var(--white); }
+.search-btn { background: var(--blue); color: var(--white); border: none; border-radius: 8px; padding: 10px 24px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.hero-stats { display: flex; justify-content: center; gap: 34px; margin-top: 26px; flex-wrap: wrap; }
+.stat-num { font-size: 24px; font-weight: 800; color: var(--white); text-align: center; }
+.stat-label { font-size: 12px; color: #A8BFDF; text-align: center; }
+
+.main { max-width: 1280px; margin: 0 auto; padding: 24px; }
+.results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+.results-count { font-size: 15px; font-weight: 600; }
+.results-count span { color: var(--blue); }
+.school-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)); gap: 16px; }
+.school-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--gray200); overflow: hidden; transition: all 0.2s; }
+.school-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+.card-img { height: 90px; background: linear-gradient(135deg, #DBEAFE, #EEF4FF); position: relative; display: flex; align-items: center; justify-content: center; font-size: 34px; }
+.card-img.international { background: linear-gradient(135deg, #EDE9FE, #F5F3FF); }
+.card-img.academic { background: linear-gradient(135deg, #FEF3C7, #FFFBEB); }
+.card-img.minority { background: linear-gradient(135deg, #DCFCE7, #F0FDF4); }
+.card-badges { position: absolute; top: 8px; left: 8px; display: flex; gap: 5px; flex-wrap: wrap; }
+.badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 5px; }
+.badge-seg { background: var(--navy); color: white; }
+.badge-verified { background: var(--green); color: white; }
+.badge-prestige { background: var(--accent); color: var(--navy); }
+.card-body { padding: 13px; }
+.card-name { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 3px; line-height: 1.35; }
+.card-location { font-size: 12px; color: var(--gray400); margin-bottom: 8px; }
+.card-tur { font-size: 11px; color: var(--gray600); background: var(--gray100); display: inline-block; padding: 3px 8px; border-radius: 5px; margin-bottom: 10px; }
+.card-footer { display: flex; gap: 6px; }
+.btn-primary { flex: 1; background: var(--blue); color: white; border: none; border-radius: 8px; padding: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.btn-secondary { flex: 1; background: white; color: var(--blue); border: 1.5px solid var(--blue); border-radius: 8px; padding: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.pagination { display: flex; justify-content: center; gap: 10px; margin: 26px 0; }
+.pg-btn { border: 1.5px solid var(--gray200); background: white; border-radius: 8px; padding: 9px 18px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--gray600); }
+.pg-btn:disabled { opacity: 0.4; cursor: default; }
+.pg-info { align-self: center; font-size: 13px; color: var(--gray400); }
+.loader { text-align: center; padding: 50px; font-size: 15px; color: var(--gray400); }
+.error-box { background: #FEE2E2; color: #991B1B; border-radius: 10px; padding: 16px 20px; margin: 20px 0; font-size: 14px; line-height: 1.6; }
+.error-box code { background: rgba(0,0,0,0.07); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+
+/* modal */
+.modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(15,32,68,0.55); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
+.modal-backdrop.open { display: flex; }
+.modal { background: white; border-radius: 16px; max-width: 560px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 26px; }
+.modal h3 { font-family: 'Merriweather', serif; font-size: 18px; color: var(--navy); margin-bottom: 4px; }
+.modal .sub { font-size: 13px; color: var(--gray400); margin-bottom: 16px; }
+.detail-row { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--gray100); font-size: 13px; }
+.detail-row b { width: 110px; flex-shrink: 0; color: var(--gray600); }
+.modal-close { float: right; background: var(--gray100); border: none; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; font-size: 15px; }
+.lead-form { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.lead-form input, .lead-form select, .lead-form textarea { border: 1.5px solid var(--gray200); border-radius: 8px; padding: 11px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; }
+.lead-submit { background: var(--green); color: white; border: none; border-radius: 8px; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.lead-ok { background: #DCFCE7; color: #15803D; border-radius: 8px; padding: 12px; font-size: 13px; font-weight: 600; }
+
+/* survey */
+.survey-hero { background: linear-gradient(135deg, #1e1b4b, #4338CA); padding: 36px 24px; text-align: center; }
+.survey-hero h1 { font-family: 'Merriweather', serif; font-size: clamp(20px, 4vw, 32px); color: white; margin-bottom: 8px; }
+.survey-hero p { color: #C7D2FE; font-size: 14px; }
+.survey-container { max-width: 640px; margin: 28px auto; padding: 0 24px 60px; }
+.step-card { background: white; border-radius: 16px; border: 1px solid var(--gray200); padding: 26px; box-shadow: var(--shadow); }
+.step-q { font-family: 'Merriweather', serif; font-size: 17px; color: var(--navy); margin-bottom: 14px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.form-grid label, .form-full label { font-size: 12px; font-weight: 600; color: var(--gray600); display: block; margin-bottom: 4px; }
+.form-grid select, .form-grid input, .form-full select, .form-full input { width: 100%; border: 1.5px solid var(--gray200); border-radius: 8px; padding: 10px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; }
+.form-full { margin-bottom: 16px; }
+.chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.p-chip { border: 2px solid var(--gray200); border-radius: 20px; padding: 7px 15px; font-size: 13px; cursor: pointer; background: white; font-weight: 500; }
+.p-chip.on { border-color: var(--purple); background: #EDE9FE; color: var(--purple); font-weight: 700; }
+.survey-go { width: 100%; background: var(--purple); color: white; border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.match-card { background: white; border-radius: 12px; border: 1px solid var(--gray200); padding: 15px; display: flex; align-items: center; gap: 12px; margin-bottom: 10px; box-shadow: var(--shadow); }
+.match-rank { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+.mr1 { background: #FEF3C7; } .mr2 { background: #F3F4F6; } .mr3 { background: #FEE2E2; }
+.match-info { flex: 1; }
+.match-name { font-size: 14px; font-weight: 700; color: var(--navy); }
+.match-meta { font-size: 12px; color: var(--gray400); }
+.match-pill { background: #DCFCE7; color: #15803D; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+#matchResults { margin-top: 22px; }
+@media (max-width: 800px) {
+  .search-box { grid-template-columns: 1fr 1fr; }
+  .search-btn { grid-column: 1 / -1; }
+  .form-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div style="background:#16A34A;color:white;text-align:center;padding:7px;font-size:13px;font-weight:700">🟢 CANLI VERİ — Django API'den gerçek zamanlı 12.555 MEB okulu</div>
+<nav>
+  <div class="nav-logo">Okul<span>Bul</span> <small style="font-size:11px;color:var(--gray400)">CANLI</small></div>
+  <div class="api-status" id="apiStatus">API kontrol ediliyor...</div>
+</nav>
+
+<div style="background:#0F2044;padding:6px 24px;display:flex;gap:16px;border-bottom:1px solid rgba(255,255,255,0.1)">
+  <a href="vizyon.html" style="color:#A8BFDF;font-size:12px;text-decoration:none">🟡 Vizyon Mockup →</a>
+  <a href="panel.html" style="color:#A8BFDF;font-size:12px;text-decoration:none">🟡 Okul Paneli Önizleme →</a>
+</div>
+<div class="page-tabs">
+  <div class="page-tab active" data-page="arama" onclick="showPage('arama')">🏫 Okul Ara</div>
+  <div class="page-tab" data-page="survey" onclick="showPage('survey')">🎯 Okul Eşleştir</div>
+</div>
+
+<!-- ═══ ARAMA ═══ -->
+<div id="page-arama" class="page active">
+  <section class="hero">
+    <h1>12.555 gerçek okul, <span>canlı</span> arama</h1>
+    <p>MEB verisi · Django API · anlık filtreleme</p>
+    <div class="search-box">
+      <select id="fIl"><option value="">📍 Tüm İller</option></select>
+      <select id="fSegment">
+        <option value="">🏷 Tüm Segmentler</option>
+        <option value="international">Uluslararası</option>
+        <option value="academic">Akademik</option>
+        <option value="minority">Azınlık Okulu</option>
+        <option value="standard">Standart</option>
+        <option value="arts">Sanat</option>
+        <option value="sports">Spor</option>
+        <option value="vocational">Meslek</option>
+        <option value="special_ed">Özel Eğitim</option>
+      </select>
+      <select id="fLevel">
+        <option value="">🎓 Tüm Kademeler</option>
+        <option value="kres">Kreş</option>
+        <option value="anaokulu">Anaokulu</option>
+        <option value="ilkokul">İlkokul</option>
+        <option value="ortaokul">Ortaokul</option>
+        <option value="lise">Lise</option>
+        <option value="k12">K-12</option>
+      </select>
+      <input type="text" id="fQ" placeholder="🔍 Okul adı veya ilçe..." onkeydown="if(event.key==='Enter')doSearch()">
+      <button class="search-btn" onclick="doSearch()">Ara</button>
+    </div>
+    <div class="hero-stats">
+      <div><div class="stat-num" id="statTotal">—</div><div class="stat-label">Toplam Okul</div></div>
+      <div><div class="stat-num" id="statIntl">—</div><div class="stat-label">Uluslararası</div></div>
+      <div><div class="stat-num">81</div><div class="stat-label">İl</div></div>
+    </div>
+  </section>
+
+  <div class="main">
+    <div id="errorBox"></div>
+    <div class="results-header">
+      <p class="results-count"><span id="resultCount">0</span> okul bulundu</p>
+    </div>
+    <div id="schoolGrid" class="school-grid"></div>
+    <div class="loader" id="loader" style="display:none">⏳ Yükleniyor...</div>
+    <div class="pagination">
+      <button class="pg-btn" id="prevBtn" onclick="changePage(-1)" disabled>← Önceki</button>
+      <span class="pg-info" id="pgInfo">-</span>
+      <button class="pg-btn" id="nextBtn" onclick="changePage(1)" disabled>Sonraki →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SURVEY ═══ -->
+<div id="page-survey" class="page">
+  <div class="survey-hero">
+    <h1>Gerçek eşleştirme — canlı API</h1>
+    <p>Formu doldur, Django matching algoritması 12.555 okuldan Top 3'ü seçsin</p>
+  </div>
+  <div class="survey-container">
+    <div class="step-card">
+      <div class="step-q">Profiliniz</div>
+      <div class="form-grid">
+        <div><label>Kimsiniz?</label>
+          <select id="sType"><option value="parent">Veli</option><option value="student">Öğrenci</option></select></div>
+        <div><label>Kademe</label>
+          <select id="sLevel">
+            <option value="anaokulu">Anaokulu</option><option value="ilkokul">İlkokul</option>
+            <option value="ortaokul">Ortaokul</option><option value="lise" selected>Lise</option>
+            <option value="kres">Kreş</option><option value="k12">K-12</option>
+          </select></div>
+        <div><label>İl</label><select id="sIl"></select></div>
+        <div><label>Maks. mesafe (km)</label><input type="number" id="sDist" value="10" min="1" max="50"></div>
+        <div><label>Yıllık bütçe (₺)</label><input type="number" id="sBudget" value="150000" step="10000"></div>
+        <div><label>Burs?</label>
+          <select id="sSchol"><option value="false">Aramıyorum</option><option value="true">Arıyorum</option></select></div>
+      </div>
+      <div class="step-q" style="font-size:15px">Öncelikleriniz</div>
+      <div class="chip-row" id="priChips">
+        <button class="p-chip" data-v="dil">🌍 Dil</button>
+        <button class="p-chip" data-v="spor">⚽ Spor</button>
+        <button class="p-chip" data-v="sanat">🎨 Sanat</button>
+        <button class="p-chip" data-v="akademik">🧠 Akademik</button>
+        <button class="p-chip" data-v="kapsayicilik">💛 Kapsayıcılık</button>
+        <button class="p-chip" data-v="kucuk_sinif">🏡 Küçük Sınıf</button>
+      </div>
+      <button class="survey-go" onclick="submitSurvey()">🎯 Eşleşmeleri Getir (canlı)</button>
+      <div id="matchResults"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DETAY MODAL ═══ -->
+<div class="modal-backdrop" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script>
+// ── API ADRESİ ──
+// Deploy sonrası PROD_API'yi Render/Railway URL'inle değiştir:
+const PROD_API = "https://okulbul-api.onrender.com/api";
+const IS_LOCAL = ["localhost", "127.0.0.1", ""].includes(location.hostname);
+const API = IS_LOCAL ? "http://127.0.0.1:8000/api" : PROD_API;
+let currentPage = 1, totalCount = 0, PAGE_SIZE = 24;
+
+const ILLER = ["ADANA","ADIYAMAN","AFYONKARAHİSAR","AĞRI","AKSARAY","AMASYA","ANKARA","ANTALYA","ARTVİN","AYDIN","BALIKESİR","BARTIN","BATMAN","BAYBURT","BİLECİK","BİNGÖL","BİTLİS","BOLU","BURDUR","BURSA","ÇANAKKALE","ÇANKIRI","ÇORUM","DENİZLİ","DİYARBAKIR","DÜZCE","EDİRNE","ELAZIĞ","ERZİNCAN","ERZURUM","ESKİŞEHİR","GAZİANTEP","GİRESUN","GÜMÜŞHANE","HAKKARİ","HATAY","IĞDIR","ISPARTA","İSTANBUL","İZMİR","KAHRAMANMARAŞ","KARABÜK","KARAMAN","KARS","KASTAMONU","KAYSERİ","KIRIKKALE","KIRKLARELİ","KIRŞEHİR","KİLİS","KOCAELİ","KONYA","KÜTAHYA","MALATYA","MANİSA","MARDİN","MERSİN","MUĞLA","MUŞ","NEVŞEHİR","NİĞDE","ORDU","OSMANİYE","RİZE","SAKARYA","SAMSUN","SİİRT","SİNOP","SİVAS","ŞANLIURFA","ŞIRNAK","TEKİRDAĞ","TOKAT","TRABZON","TUNCELİ","UŞAK","VAN","YALOVA","YOZGAT","ZONGULDAK"];
+
+const SEG_LABEL = { international: "Uluslararası", academic: "Akademik", minority: "Azınlık", standard: "Standart", arts: "Sanat", sports: "Spor", vocational: "Meslek", special_ed: "Özel Eğitim", consultancy: "Danışmanlık", unknown: "-" };
+const SEG_ICON = { international: "🌍", academic: "🎓", minority: "🕊", standard: "🏫", arts: "🎨", sports: "⚽", vocational: "🔧", special_ed: "💛", consultancy: "🧭", unknown: "🏫" };
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+
+function initSelects() {
+  const fIl = document.getElementById('fIl'), sIl = document.getElementById('sIl');
+  ILLER.forEach(il => {
+    fIl.insertAdjacentHTML('beforeend', `<option value="${il}">${il}</option>`);
+    sIl.insertAdjacentHTML('beforeend', `<option value="${il}" ${il==='İSTANBUL'?'selected':''}>${il}</option>`);
+  });
+}
+
+async function checkAPI() {
+  const el = document.getElementById('apiStatus');
+  try {
+    const r = await fetch(`${API}/schools/?page=1`);
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    el.textContent = `● API bağlı — ${d.count.toLocaleString('tr')} okul`;
+    el.className = 'api-status ok';
+    document.getElementById('statTotal').textContent = d.count.toLocaleString('tr');
+    const ri = await fetch(`${API}/schools/?segment=international`);
+    if (ri.ok) document.getElementById('statIntl').textContent = (await ri.json()).count;
+    return true;
+  } catch (e) {
+    el.textContent = '● API bağlantısı yok';
+    el.className = 'api-status err';
+    document.getElementById('errorBox').innerHTML = `
+      <div class="error-box">
+        <b>API'ye ulaşılamıyor.</b> Kontrol listesi:<br>
+        1. Django çalışıyor mu? → <code>python manage.py runserver</code><br>
+        2. CORS kurulu mu? → <code>pip install django-cors-headers</code>, sonra settings.py'de
+        <code>INSTALLED_APPS</code>'e <code>"corsheaders"</code>, <code>MIDDLEWARE</code> başına
+        <code>"corsheaders.middleware.CorsMiddleware"</code> ve en alta
+        <code>CORS_ALLOW_ALL_ORIGINS = True</code> ekle, sunucuyu yeniden başlat.
+      </div>`;
+    return false;
+  }
+}
+
+async function loadSchools(page = 1) {
+  const loader = document.getElementById('loader'), grid = document.getElementById('schoolGrid');
+  loader.style.display = 'block'; grid.innerHTML = '';
+  const params = new URLSearchParams({ page });
+  const il = document.getElementById('fIl').value;
+  const seg = document.getElementById('fSegment').value;
+  const lvl = document.getElementById('fLevel').value;
+  const q = document.getElementById('fQ').value.trim();
+  if (il) params.set('il', il);
+  if (seg) params.set('segment', seg);
+  if (lvl) params.set('level', lvl);
+  if (q) params.set('q', q);
+
+  try {
+    const r = await fetch(`${API}/schools/?${params}`);
+    const d = await r.json();
+    totalCount = d.count; currentPage = page;
+    document.getElementById('resultCount').textContent = d.count.toLocaleString('tr');
+    grid.innerHTML = d.results.map(s => `
+      <div class="school-card">
+        <div class="card-img ${esc(s.segment)}">${SEG_ICON[s.segment] || '🏫'}
+          <div class="card-badges">
+            <span class="badge badge-seg">${SEG_LABEL[s.segment] || s.segment}</span>
+            ${s.is_verified ? '<span class="badge badge-verified">✅ Doğrulanmış</span>' : ''}
+            ${s.prestige_hint ? '<span class="badge badge-prestige">★ Prestij</span>' : ''}
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">${esc(s.name)}</div>
+          <div class="card-location">📍 ${esc(s.ilce)}, ${esc(s.il)}</div>
+          <div class="card-tur">${esc(s.kurum_turu)}</div>
+          <div class="card-footer">
+            <button class="btn-primary" onclick="openDetail('${esc(s.slug)}')">Detay</button>
+            <button class="btn-secondary" onclick="openLead(${s.id}, '${esc(s.name).replace(/'/g, "\\'")}')">Bilgi İste</button>
+          </div>
+        </div>
+      </div>`).join('');
+    const maxPage = Math.ceil(d.count / PAGE_SIZE) || 1;
+    document.getElementById('pgInfo').textContent = `Sayfa ${page} / ${maxPage}`;
+    document.getElementById('prevBtn').disabled = !d.previous;
+    document.getElementById('nextBtn').disabled = !d.next;
+  } catch (e) {
+    grid.innerHTML = '<div class="error-box">Veri alınamadı: ' + esc(e.message) + '</div>';
+  }
+  loader.style.display = 'none';
+}
+
+function doSearch() { loadSchools(1); }
+function changePage(delta) { loadSchools(currentPage + delta); window.scrollTo({top: 300, behavior: 'smooth'}); }
+
+async function openDetail(slug) {
+  const bg = document.getElementById('modalBg'), mc = document.getElementById('modalContent');
+  mc.innerHTML = '<div class="loader">⏳</div>'; bg.classList.add('open');
+  try {
+    const r = await fetch(`${API}/schools/${encodeURIComponent(slug)}/`);
+    const s = await r.json();
+    mc.innerHTML = `
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <h3>${esc(s.name)}</h3>
+      <p class="sub">${esc(s.ilce)}, ${esc(s.il)}</p>
+      <div class="detail-row"><b>Kurum Türü</b> ${esc(s.kurum_turu)}</div>
+      <div class="detail-row"><b>Segment</b> ${SEG_LABEL[s.segment] || s.segment} ${s.prestige_hint ? '· ★ Prestij adayı' : ''}</div>
+      <div class="detail-row"><b>Kademe</b> ${esc(s.level || '-')}</div>
+      <div class="detail-row"><b>Adres</b> ${esc(s.address || '-')}</div>
+      <div class="detail-row"><b>Telefon</b> ${esc(s.phone || '-')}</div>
+      <div class="detail-row"><b>Doğrulanma</b> ${s.is_verified ? '✅ Doğrulanmış okul' : '— Henüz üye değil'}</div>
+      <div class="detail-row"><b>Dil Hazırlık</b> ${s.lang_prep ? 'Var' : '-'}</div>
+      ${s.sources?.length ? '<div class="detail-row"><b>Kaynaklar</b> ' + s.sources.map(x => esc(x.category)).join(', ') + '</div>' : ''}
+    `;
+  } catch (e) { mc.innerHTML = '<div class="error-box">Detay alınamadı</div>'; }
+}
+
+function openLead(schoolId, name) {
+  const bg = document.getElementById('modalBg'), mc = document.getElementById('modalContent');
+  mc.innerHTML = `
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3>Bilgi Talebi</h3>
+    <p class="sub">${esc(name)}</p>
+    <div class="lead-form">
+      <select id="leadKind">
+        <option value="email">E-posta ile bilgi (lead: 25₺)</option>
+        <option value="phone">Telefonla arayın (lead: 45₺)</option>
+        <option value="appointment">Randevu istiyorum (lead: 65₺)</option>
+      </select>
+      <input id="leadName" placeholder="Adınız">
+      <input id="leadEmail" type="email" placeholder="E-posta">
+      <input id="leadPhone" placeholder="Telefon (opsiyonel)">
+      <textarea id="leadMsg" rows="2" placeholder="Mesajınız (opsiyonel)"></textarea>
+      <button class="lead-submit" onclick="submitLead(${schoolId})">Gönder</button>
+      <div id="leadResult"></div>
+    </div>`;
+  bg.classList.add('open');
+}
+
+async function submitLead(schoolId) {
+  const body = {
+    school: schoolId,
+    kind: document.getElementById('leadKind').value,
+    parent_name: document.getElementById('leadName').value,
+    email: document.getElementById('leadEmail').value,
+    phone: document.getElementById('leadPhone').value,
+    message: document.getElementById('leadMsg').value,
+  };
+  try {
+    const r = await fetch(`${API}/leads/`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(JSON.stringify(d));
+    document.getElementById('leadResult').innerHTML =
+      `<div class="lead-ok">✅ Talep alındı! Lead #${d.id} — okul tarafına ${d.fee_amount}₺ lead fee yazıldı.</div>`;
+  } catch (e) {
+    document.getElementById('leadResult').innerHTML =
+      `<div class="error-box">Hata: ${esc(e.message)}</div>`;
+  }
+}
+
+function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
+
+// survey
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('p-chip')) e.target.classList.toggle('on');
+});
+
+async function submitSurvey() {
+  const priorities = [...document.querySelectorAll('#priChips .p-chip.on')].map(c => c.dataset.v);
+  const body = {
+    respondent_type: document.getElementById('sType').value,
+    level: document.getElementById('sLevel').value,
+    il: document.getElementById('sIl').value,
+    max_distance_km: parseInt(document.getElementById('sDist').value) || 10,
+    budget_annual: parseInt(document.getElementById('sBudget').value) || 100000,
+    wants_scholarship: document.getElementById('sSchol').value === 'true',
+    priorities,
+    school_profile: "",
+  };
+  const box = document.getElementById('matchResults');
+  box.innerHTML = '<div class="loader">⏳ Matching çalışıyor...</div>';
+  try {
+    const r = await fetch(`${API}/survey/`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(JSON.stringify(d));
+    const medals = ['🥇','🥈','🥉'];
+    box.innerHTML = '<div class="step-q" style="margin-top:18px">🏆 Top 3 Eşleşme (canlı DB\'den)</div>' +
+      d.matches.map((m, i) => `
+        <div class="match-card">
+          <div class="match-rank mr${m.rank}">${medals[i] || m.rank}</div>
+          <div class="match-info">
+            <div class="match-name">${esc(m.school.name)}</div>
+            <div class="match-meta">${esc(m.school.ilce)}, ${esc(m.school.il)} · ${SEG_LABEL[m.school.segment] || ''}</div>
+          </div>
+          <div class="match-pill">%${Math.round(m.score)} skor</div>
+        </div>`).join('');
+  } catch (e) {
+    box.innerHTML = `<div class="error-box">Eşleştirme hatası: ${esc(e.message)}</div>`;
+  }
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelector(`.page-tab[data-page="${id}"]`).classList.add('active');
+}
+
+initSelects();
+['fIl','fSegment','fLevel'].forEach(id =>
+  document.getElementById(id).addEventListener('change', () => loadSchools(1))
+);
+checkAPI().then(ok => { if (ok) loadSchools(1); });
+</script>
+</body>
+</html>
